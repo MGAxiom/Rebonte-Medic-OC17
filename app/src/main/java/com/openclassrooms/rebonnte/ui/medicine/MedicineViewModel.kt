@@ -1,60 +1,65 @@
 package com.openclassrooms.rebonnte.ui.medicine
 
 import androidx.lifecycle.ViewModel
-import com.openclassrooms.rebonnte.ui.aisle.Aisle
+import androidx.lifecycle.viewModelScope
+import com.openclassrooms.rebonnte.domain.model.Aisle
+import com.openclassrooms.rebonnte.domain.model.Medicine
+import com.openclassrooms.rebonnte.domain.repository.MedicineRepository
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import java.util.Locale
-import java.util.Random
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.stateIn
 
-class MedicineViewModel : ViewModel() {
-    var _medicines = MutableStateFlow<MutableList<Medicine>>(mutableListOf())
-    val medicines: StateFlow<List<Medicine>> get() = _medicines
+class MedicineViewModel(private val repository: MedicineRepository) : ViewModel() {
 
-    init {
-        _medicines.value = ArrayList() // Initialiser avec une liste vide
-    }
+    private val _searchQuery = MutableStateFlow("")
+    private val _sortType = MutableStateFlow(SortType.NONE)
+
+    val medicines: StateFlow<List<Medicine>> = combine(
+        repository.medicines,
+        _searchQuery,
+        _sortType
+    ) { medicines, query, sortType ->
+        var filtered = if (query.isEmpty()) {
+            medicines
+        } else {
+            medicines.filter { it.name.contains(query, ignoreCase = true) }
+        }
+
+        when (sortType) {
+            SortType.NAME -> filtered = filtered.sortedBy { it.name }
+            SortType.STOCK -> filtered = filtered.sortedBy { it.stock }
+            SortType.NONE -> { /* keep as is */ }
+        }
+        filtered
+    }.stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
 
     fun addRandomMedicine(aisles: List<Aisle>) {
-        val currentMedicines = ArrayList(medicines.value)
-        currentMedicines.add(
-            Medicine(
-                "Medicine " + (currentMedicines.size + 1),
-                Random().nextInt(100),
-                aisles[Random().nextInt(aisles.size)].name,
-                emptyList()
-            )
-        )
-        _medicines.value = currentMedicines
+        repository.addRandomMedicine(aisles)
     }
 
     fun filterByName(name: String) {
-        val currentMedicines: List<Medicine> = medicines.value
-        val filteredMedicines: MutableList<Medicine> = ArrayList()
-        for (medicine in currentMedicines) {
-            if (medicine.name.lowercase(Locale.getDefault())
-                    .contains(name.lowercase(Locale.getDefault()))
-            ) {
-                filteredMedicines.add(medicine)
-            }
-        }
-        _medicines.value = filteredMedicines
+        _searchQuery.value = name
     }
 
     fun sortByNone() {
-        _medicines.value = medicines.value.toMutableList() // Pas de tri
+        _sortType.value = SortType.NONE
     }
 
     fun sortByName() {
-        val currentMedicines = ArrayList(medicines.value)
-        currentMedicines.sortWith(Comparator.comparing(Medicine::name))
-        _medicines.value = currentMedicines
+        _sortType.value = SortType.NAME
     }
 
     fun sortByStock() {
-        val currentMedicines = ArrayList(medicines.value)
-        currentMedicines.sortWith(Comparator.comparingInt(Medicine::stock))
-        _medicines.value = currentMedicines
+        _sortType.value = SortType.STOCK
+    }
+
+    fun updateStock(medicineName: String, increment: Boolean) {
+        repository.updateStock(medicineName, increment)
+    }
+
+    enum class SortType {
+        NONE, NAME, STOCK
     }
 }
-

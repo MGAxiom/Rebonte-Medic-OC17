@@ -15,7 +15,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowRight
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -27,18 +26,20 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.ViewModelProvider
-import com.openclassrooms.rebonnte.MainActivity
-import com.openclassrooms.rebonnte.ui.medicine.Medicine
+import com.openclassrooms.rebonnte.domain.model.Medicine
 import com.openclassrooms.rebonnte.ui.medicine.MedicineDetailActivity
 import com.openclassrooms.rebonnte.ui.medicine.MedicineViewModel
 import com.openclassrooms.rebonnte.ui.theme.RebonnteTheme
+import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class AisleDetailActivity : ComponentActivity() {
+
+    private val viewModel: MedicineViewModel by viewModel()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val name = intent.getStringExtra("nameAisle") ?: "Unknown"
-        val viewModel = ViewModelProvider(MainActivity.mainActivity)[MedicineViewModel::class.java]
+        
         setContent {
             RebonnteTheme {
                 AisleDetailScreen(name, viewModel)
@@ -47,10 +48,9 @@ class AisleDetailActivity : ComponentActivity() {
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AisleDetailScreen(name: String, viewModel: MedicineViewModel) {
-    val medicines by viewModel.medicines.collectAsState(initial = emptyList())
+    val medicines by viewModel.medicines.collectAsState()
     val filteredMedicines = medicines.filter { it.nameAisle == name }
     val context = LocalContext.current
 
@@ -60,9 +60,9 @@ fun AisleDetailScreen(name: String, viewModel: MedicineViewModel) {
             modifier = Modifier.fillMaxSize()
         ) {
             items(filteredMedicines) { medicine ->
-                MedicineItem(medicine = medicine, onClick = { name ->
+                MedicineItem(medicine = medicine, onClick = { medicineName ->
                     val intent = Intent(context, MedicineDetailActivity::class.java).apply {
-                        putExtra("nameMedicine", name)
+                        putExtra("nameMedicine", medicineName)
                     }
                     context.startActivity(intent)
                 })

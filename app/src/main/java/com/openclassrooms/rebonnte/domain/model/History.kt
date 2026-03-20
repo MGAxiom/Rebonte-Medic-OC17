@@ -1,0 +1,8 @@
+package com.openclassrooms.rebonnte.domain.model
+
+data class History(
+    val medicineName: String,
+    val userId: String,
+    val date: String,
+    val details: String
+)
