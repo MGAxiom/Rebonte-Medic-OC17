@@ -1,29 +1,25 @@
 package com.openclassrooms.rebonnte
 
-import android.content.BroadcastReceiver
-import android.content.Context
-import android.content.Intent
-import android.content.IntentFilter
-import android.os.Build
 import android.os.Bundle
-import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.List
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.Search
@@ -41,6 +37,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -51,188 +48,160 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
-import androidx.navigation.compose.currentBackStackEntryAsState
-import androidx.navigation.compose.rememberNavController
+import androidx.navigation3.runtime.NavEntry
+import androidx.navigation3.ui.NavDisplay
 import com.openclassrooms.rebonnte.ui.aisle.AisleScreen
 import com.openclassrooms.rebonnte.ui.aisle.AisleViewModel
 import com.openclassrooms.rebonnte.ui.medicine.MedicineScreen
 import com.openclassrooms.rebonnte.ui.medicine.MedicineViewModel
+import com.openclassrooms.rebonnte.ui.navigation.Screens
 import com.openclassrooms.rebonnte.ui.theme.RebonnteTheme
 import org.koin.androidx.compose.koinViewModel
 
 class MainActivity : ComponentActivity() {
 
-    private var myBroadcastReceiver: MyBroadcastReceiver? = null
-
+    @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        mainActivity = this
+        enableEdgeToEdge()
         setContent {
-            MyApp()
-        }
-        setupBroadcastReceiver()
-    }
+            RebonnteTheme {
+                val backStack = remember { mutableStateListOf<Any>(Screens.Aisle) }
+                val currentDestination = backStack.lastOrNull()
+                val aisleViewModel = koinViewModel<AisleViewModel>()
+                val medicineViewModel = koinViewModel<MedicineViewModel>()
 
-    private fun setupBroadcastReceiver() {
-        if (myBroadcastReceiver == null) {
-            myBroadcastReceiver = MyBroadcastReceiver()
-            val filter = IntentFilter().apply {
-                addAction("com.rebonnte.ACTION_UPDATE")
-            }
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                registerReceiver(myBroadcastReceiver, filter, RECEIVER_NOT_EXPORTED)
-            } else {
-                registerReceiver(myBroadcastReceiver, filter)
-            }
-        }
-    }
+                Scaffold(
+                    modifier = Modifier.fillMaxSize(),
+                    topBar = {
+                        var isSearchActive by rememberSaveable { mutableStateOf(false) }
+                        var searchQuery by remember { mutableStateOf("") }
 
-    override fun onDestroy() {
-        super.onDestroy()
-        myBroadcastReceiver?.let {
-            unregisterReceiver(it)
-            myBroadcastReceiver = null
-        }
-    }
-
-    class MyBroadcastReceiver : BroadcastReceiver() {
-        override fun onReceive(context: Context?, intent: Intent?) {
-            Toast.makeText(mainActivity, "Update reçu", Toast.LENGTH_SHORT).show()
-        }
-    }
-
-    companion object {
-        lateinit var mainActivity: MainActivity
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun MyApp() {
-    val navController = rememberNavController()
-    
-    val medicineViewModel: MedicineViewModel = koinViewModel()
-    val aisleViewModel: AisleViewModel = koinViewModel()
-    
-    val navBackStackEntry by navController.currentBackStackEntryAsState()
-    val route = navBackStackEntry?.destination?.route
-
-    RebonnteTheme {
-        Scaffold(
-            topBar = {
-                var isSearchActive by rememberSaveable { mutableStateOf(false) }
-                var searchQuery by remember { mutableStateOf("") }
-
-                Column(verticalArrangement = Arrangement.spacedBy((-1).dp)) {
-                    TopAppBar(
-                        title = { if (route == "aisle") Text(text = "Aisle") else Text(text = "Medicines") },
-                        actions = {
-                            var expanded by remember { mutableStateOf(false) }
-                            if (currentRoute(navController) == "medicine") {
-                                Row(
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    modifier = Modifier
-                                        .padding(end = 8.dp)
-                                        .background(MaterialTheme.colorScheme.surface)
-                                        .padding(horizontal = 8.dp, vertical = 4.dp)
-                                ) {
-                                    Box {
-                                        IconButton(onClick = { expanded = true }) {
-                                            Icon(Icons.Default.MoreVert, contentDescription = null)
-                                        }
-                                        DropdownMenu(
-                                            expanded = expanded,
-                                            onDismissRequest = { expanded = false },
-                                            offset = DpOffset(x = 0.dp, y = 0.dp)
+                        Column(verticalArrangement = Arrangement.spacedBy((-1).dp)) {
+                            TopAppBar(
+                                title = { if (currentDestination == Screens.Aisle) Text(text = "Aisle") else Text(text = "Medicines") },
+                                actions = {
+                                    var expanded by remember { mutableStateOf(false) }
+                                    if (currentDestination == Screens.Medicine) {
+                                        Row(
+                                            verticalAlignment = Alignment.CenterVertically,
+                                            modifier = Modifier
+                                                .padding(end = 8.dp)
+                                                .background(MaterialTheme.colorScheme.surface)
+                                                .padding(horizontal = 8.dp, vertical = 4.dp)
                                         ) {
-                                            DropdownMenuItem(
-                                                onClick = {
-                                                    medicineViewModel.sortByNone()
-                                                    expanded = false
-                                                },
-                                                text = { Text("Sort by None") }
-                                            )
-                                            DropdownMenuItem(
-                                                onClick = {
-                                                    medicineViewModel.sortByName()
-                                                    expanded = false
-                                                },
-                                                text = { Text("Sort by Name") }
-                                            )
-                                            DropdownMenuItem(
-                                                onClick = {
-                                                    medicineViewModel.sortByStock()
-                                                    expanded = false
-                                                },
-                                                text = { Text("Sort by Stock") }
-                                            )
+                                            Box {
+                                                IconButton(onClick = { expanded = true }) {
+                                                    Icon(Icons.Default.MoreVert, contentDescription = null)
+                                                }
+                                                DropdownMenu(
+                                                    expanded = expanded,
+                                                    onDismissRequest = { expanded = false },
+                                                    offset = DpOffset(x = 0.dp, y = 0.dp)
+                                                ) {
+                                                    DropdownMenuItem(
+                                                        onClick = {
+                                                            medicineViewModel.sortByNone()
+                                                            expanded = false
+                                                        },
+                                                        text = { Text("Sort by None") }
+                                                    )
+                                                    DropdownMenuItem(
+                                                        onClick = {
+                                                            medicineViewModel.sortByName()
+                                                            expanded = false
+                                                        },
+                                                        text = { Text("Sort by Name") }
+                                                    )
+                                                    DropdownMenuItem(
+                                                        onClick = {
+                                                            medicineViewModel.sortByStock()
+                                                            expanded = false
+                                                        },
+                                                        text = { Text("Sort by Stock") }
+                                                    )
+                                                }
+                                            }
                                         }
                                     }
                                 }
+                            )
+                            if (currentDestination == Screens.Medicine) {
+                                EmbeddedSearchBar(
+                                    query = searchQuery,
+                                    onQueryChange = {
+                                        medicineViewModel.filterByName(it)
+                                        searchQuery = it
+                                    },
+                                    isSearchActive = isSearchActive,
+                                    onActiveChanged = { isSearchActive = it }
+                                )
+                            }
+                        }
+
+                    },
+                    bottomBar = {
+                        NavigationBar {
+                            NavigationBarItem(
+                                icon = { Icon(Icons.Default.Home, contentDescription = null) },
+                                label = { Text("Aisle") },
+                                selected = currentDestination == Screens.Aisle,
+                                onClick = { 
+                                    if (currentDestination != Screens.Aisle) {
+                                        backStack.clear()
+                                        backStack.add(Screens.Aisle)
+                                    }
+                                }
+                            )
+                            NavigationBarItem(
+                                icon = { Icon(Icons.AutoMirrored.Filled.List, contentDescription = null) },
+                                label = { Text("Medicine") },
+                                selected = currentDestination == Screens.Medicine,
+                                onClick = {
+                                    if (currentDestination != Screens.Medicine) {
+                                        backStack.add(Screens.Medicine)
+                                    }
+                                }
+                            )
+                        }
+                    },
+                    floatingActionButton = {
+                        FloatingActionButton(onClick = {
+                            if (currentDestination == Screens.Medicine) {
+                                medicineViewModel.addRandomMedicine(aisleViewModel.aisles.value)
+                            } else if (currentDestination == Screens.Aisle) {
+                                aisleViewModel.addRandomAisle()
+                            }
+                        }) {
+                            Icon(Icons.Default.Add, contentDescription = "Add")
+                        }
+                    }
+                ) { innerPadding ->
+                    NavDisplay(
+                        modifier = Modifier.padding(innerPadding),
+                        backStack = backStack,
+                        onBack = { backStack.removeLastOrNull() },
+                        entryProvider = { key ->
+                            when (key) {
+                                is Screens.Aisle -> NavEntry(key) {
+                                    AisleScreen(
+                                        viewModel = koinViewModel(),
+                                    )
+                                }
+
+                                is Screens.Medicine -> NavEntry(key) {
+                                    MedicineScreen(
+                                        viewModel = koinViewModel(),
+                                    )
+                                }
+                                else -> NavEntry(Unit) {}
                             }
                         }
                     )
-                    if (currentRoute(navController) == "medicine") {
-                        EmbeddedSearchBar(
-                            query = searchQuery,
-                            onQueryChange = {
-                                medicineViewModel.filterByName(it)
-                                searchQuery = it
-                            },
-                            isSearchActive = isSearchActive,
-                            onActiveChanged = { isSearchActive = it }
-                        )
-                    }
                 }
-
-            },
-            bottomBar = {
-                NavigationBar {
-                    NavigationBarItem(
-                        icon = { Icon(Icons.Default.Home, contentDescription = null) },
-                        label = { Text("Aisle") },
-                        selected = currentRoute(navController) == "aisle",
-                        onClick = { navController.navigate("aisle") }
-                    )
-                    NavigationBarItem(
-                        icon = { Icon(Icons.Default.List, contentDescription = null) },
-                        label = { Text("Medicine") },
-                        selected = currentRoute(navController) == "medicine",
-                        onClick = { navController.navigate("medicine") }
-                    )
-                }
-            },
-            floatingActionButton = {
-                FloatingActionButton(onClick = {
-                    if (route == "medicine") {
-                        medicineViewModel.addRandomMedicine(aisleViewModel.aisles.value)
-                    } else if (route == "aisle") {
-                        aisleViewModel.addRandomAisle()
-                    }
-                }) {
-                    Icon(Icons.Default.Add, contentDescription = "Add")
-                }
-            }
-        ) {
-            NavHost(
-                modifier = Modifier.padding(it),
-                navController = navController,
-                startDestination = "aisle"
-            ) {
-                composable("aisle") { AisleScreen(aisleViewModel) }
-                composable("medicine") { MedicineScreen(medicineViewModel) }
             }
         }
     }
-}
-
-@Composable
-fun currentRoute(navController: NavController): String? {
-    val navBackStackEntry by navController.currentBackStackEntryAsState()
-    return navBackStackEntry?.destination?.route
 }
 
 @Composable
@@ -280,9 +249,9 @@ fun EmbeddedSearchBar(
 
         BasicTextField(
             value = searchQuery,
-            onValueChange = { query ->
-                searchQuery = query
-                onQueryChange(query)
+            onValueChange = { queryText ->
+                searchQuery = queryText
+                onQueryChange(queryText)
             },
             modifier = Modifier
                 .weight(1f)
