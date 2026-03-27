@@ -13,9 +13,11 @@ import androidx.compose.ui.platform.LocalContext
 import com.openclassrooms.rebonnte.ui.components.RebonnteItem
 
 @Composable
-fun AisleScreen(viewModel: AisleViewModel) {
+fun AisleScreen(
+    viewModel: AisleViewModel,
+    onAisleClick: (String) -> Unit
+) {
     val aisles by viewModel.aisles.collectAsState()
-    val context = LocalContext.current
 
     LazyColumn(
         modifier = Modifier.fillMaxSize()
@@ -24,16 +26,9 @@ fun AisleScreen(viewModel: AisleViewModel) {
             RebonnteItem(
                 title = aisle.name,
                 onClick = {
-                    startDetailActivity(context, aisle.name)
+                    onAisleClick(aisle.name)
                 }
             )
         }
     }
-}
-
-private fun startDetailActivity(context: Context, name: String) {
-    val intent = Intent(context, AisleDetailActivity::class.java).apply {
-        putExtra("nameAisle", name)
-    }
-    context.startActivity(intent)
 }

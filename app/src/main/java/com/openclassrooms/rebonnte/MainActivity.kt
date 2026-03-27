@@ -40,9 +40,11 @@ import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.navigation3.runtime.NavEntry
 import androidx.navigation3.ui.NavDisplay
+import com.openclassrooms.rebonnte.ui.aisle.AisleDetailScreen
 import com.openclassrooms.rebonnte.ui.aisle.AisleScreen
 import com.openclassrooms.rebonnte.ui.aisle.AisleViewModel
 import com.openclassrooms.rebonnte.ui.components.EmbeddedSearchBar
+import com.openclassrooms.rebonnte.ui.medicine.MedicineDetailScreen
 import com.openclassrooms.rebonnte.ui.medicine.MedicineScreen
 import com.openclassrooms.rebonnte.ui.medicine.MedicineViewModel
 import com.openclassrooms.rebonnte.ui.navigation.Screens
@@ -70,7 +72,15 @@ class MainActivity : ComponentActivity() {
 
                         Column(verticalArrangement = Arrangement.spacedBy((-1).dp)) {
                             TopAppBar(
-                                title = { if (currentDestination == Screens.Aisle) Text(text = "Aisle") else Text(text = "Medicines") },
+                                title = {
+                                    when (currentDestination) {
+                                        is Screens.Aisle -> Text(text = "Aisles")
+                                        is Screens.Medicine -> Text(text = "Medicines")
+                                        is Screens.AisleDetail -> Text(text = currentDestination.name)
+                                        is Screens.MedicineDetail -> Text(text = currentDestination.name)
+                                        else -> Text(text = "Rebonnte")
+                                    }
+                                },
                                 actions = {
                                     var expanded by remember { mutableStateOf(false) }
                                     if (currentDestination == Screens.Medicine) {
@@ -136,8 +146,8 @@ class MainActivity : ComponentActivity() {
                             NavigationBarItem(
                                 icon = { Icon(Icons.Default.Home, contentDescription = null) },
                                 label = { Text("Aisle") },
-                                selected = currentDestination == Screens.Aisle,
-                                onClick = {
+                                selected = currentDestination == Screens.Aisle || currentDestination is Screens.AisleDetail,
+                                onClick = { 
                                     if (currentDestination != Screens.Aisle) {
                                         backStack.clear()
                                         backStack.add(Screens.Aisle)
@@ -147,9 +157,10 @@ class MainActivity : ComponentActivity() {
                             NavigationBarItem(
                                 icon = { Icon(Icons.AutoMirrored.Filled.List, contentDescription = null) },
                                 label = { Text("Medicine") },
-                                selected = currentDestination == Screens.Medicine,
+                                selected = currentDestination == Screens.Medicine || currentDestination is Screens.MedicineDetail,
                                 onClick = {
                                     if (currentDestination != Screens.Medicine) {
+                                        backStack.clear()
                                         backStack.add(Screens.Medicine)
                                     }
                                 }
@@ -157,14 +168,16 @@ class MainActivity : ComponentActivity() {
                         }
                     },
                     floatingActionButton = {
-                        FloatingActionButton(onClick = {
-                            if (currentDestination == Screens.Medicine) {
-                                medicineViewModel.addRandomMedicine(aisleViewModel.aisles.value)
-                            } else if (currentDestination == Screens.Aisle) {
-                                aisleViewModel.addRandomAisle()
+                        if (currentDestination == Screens.Medicine || currentDestination == Screens.Aisle) {
+                            FloatingActionButton(onClick = {
+                                if (currentDestination == Screens.Medicine) {
+                                    medicineViewModel.addRandomMedicine(aisleViewModel.aisles.value)
+                                } else if (currentDestination == Screens.Aisle) {
+                                    aisleViewModel.addRandomAisle()
+                                }
+                            }) {
+                                Icon(Icons.Default.Add, contentDescription = "Add")
                             }
-                        }) {
-                            Icon(Icons.Default.Add, contentDescription = "Add")
                         }
                     }
                 ) { innerPadding ->
@@ -177,12 +190,35 @@ class MainActivity : ComponentActivity() {
                                 is Screens.Aisle -> NavEntry(key) {
                                     AisleScreen(
                                         viewModel = koinViewModel(),
+                                        onAisleClick = { name ->
+                                            backStack.add(Screens.AisleDetail(name))
+                                        }
                                     )
                                 }
 
                                 is Screens.Medicine -> NavEntry(key) {
                                     MedicineScreen(
                                         viewModel = koinViewModel(),
+                                        onDetailClick = { name ->
+                                            backStack.add(Screens.MedicineDetail(name))
+                                        }
+                                    )
+                                }
+
+                                is Screens.AisleDetail -> NavEntry(key) {
+                                    AisleDetailScreen(
+                                        name = key.name,
+                                        viewModel = koinViewModel(),
+                                        onMedicineClick = { medicineName ->
+                                            backStack.add(Screens.MedicineDetail(medicineName))
+                                        }
+                                    )
+                                }
+
+                                is Screens.MedicineDetail -> NavEntry(key) {
+                                    MedicineDetailScreen(
+                                        name = key.name,
+                                        viewModel = koinViewModel()
                                     )
                                 }
                                 else -> NavEntry(Unit) {}
