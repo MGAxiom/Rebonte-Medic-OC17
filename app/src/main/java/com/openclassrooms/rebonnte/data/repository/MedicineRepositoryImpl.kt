@@ -28,6 +28,12 @@ class MedicineRepositoryImpl : MedicineRepository {
         _medicines.value = currentList
     }
 
+    override fun removeMedicine(medicineName: String) {
+        val currentList = _medicines.value.toMutableList()
+        currentList.removeIf { it.name == medicineName }
+        _medicines.value = currentList
+    }
+
     override fun updateStock(medicineName: String, increment: Boolean) {
         val currentList = _medicines.value.toMutableList()
         val index = currentList.indexOfFirst { it.name == medicineName }

@@ -59,6 +59,11 @@ class MedicineViewModel(private val repository: MedicineRepository) : ViewModel(
         repository.updateStock(medicineName, increment)
     }
 
+    fun removeMedicine(medicineName: String) {
+        repository.removeMedicine(medicineName)
+    }
+
+
     enum class SortType {
         NONE, NAME, STOCK
     }

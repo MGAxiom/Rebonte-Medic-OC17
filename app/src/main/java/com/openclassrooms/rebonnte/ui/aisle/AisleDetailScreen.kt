@@ -8,12 +8,14 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import com.openclassrooms.rebonnte.ui.components.RebonnteItem
+import com.openclassrooms.rebonnte.ui.components.SwipeableItem
 import com.openclassrooms.rebonnte.ui.medicine.MedicineViewModel
 
 @Composable
 fun AisleDetailScreen(
     name: String,
     viewModel: MedicineViewModel,
+    modifier: Modifier = Modifier,
     onMedicineClick: (String) -> Unit
 ) {
     val medicines by viewModel.medicines.collectAsState()
@@ -22,11 +24,13 @@ fun AisleDetailScreen(
     LazyColumn(
         modifier = Modifier.fillMaxSize()
     ) {
-        items(filteredMedicines) { medicine ->
-            RebonnteItem(
+        items(filteredMedicines, key = { it.name }) { medicine ->
+            SwipeableItem(
                 title = medicine.name,
                 subtitle = "Stock: ${medicine.stock}",
-                onClick = { onMedicineClick(medicine.name) }
+                onDelete = { viewModel.removeMedicine(medicine.name) },
+                onClick = { onMedicineClick(medicine.name) },
+                modifier = modifier
             )
         }
     }

@@ -19,7 +19,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun RebonnteItem(
+internal fun RebonnteItem(
     title: String,
     modifier: Modifier = Modifier,
     subtitle: String? = null,
