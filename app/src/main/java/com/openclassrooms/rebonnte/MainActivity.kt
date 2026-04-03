@@ -28,6 +28,7 @@ import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -36,6 +37,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.navigation3.runtime.NavEntry
@@ -44,6 +46,7 @@ import com.openclassrooms.rebonnte.ui.aisle.AisleDetailScreen
 import com.openclassrooms.rebonnte.ui.aisle.AisleScreen
 import com.openclassrooms.rebonnte.ui.aisle.AisleViewModel
 import com.openclassrooms.rebonnte.ui.components.EmbeddedSearchBar
+import com.openclassrooms.rebonnte.ui.medicine.MedicineAddScreen
 import com.openclassrooms.rebonnte.ui.medicine.MedicineDetailScreen
 import com.openclassrooms.rebonnte.ui.medicine.MedicineScreen
 import com.openclassrooms.rebonnte.ui.medicine.MedicineViewModel
@@ -63,6 +66,7 @@ class MainActivity : ComponentActivity() {
                 val currentDestination = backStack.lastOrNull()
                 val aisleViewModel = koinViewModel<AisleViewModel>()
                 val medicineViewModel = koinViewModel<MedicineViewModel>()
+                val aisles by aisleViewModel.aisles.collectAsState()
 
                 Scaffold(
                     modifier = Modifier.fillMaxSize(),
@@ -74,11 +78,12 @@ class MainActivity : ComponentActivity() {
                             TopAppBar(
                                 title = {
                                     when (currentDestination) {
-                                        is Screens.Aisle -> Text(text = "Aisles")
-                                        is Screens.Medicine -> Text(text = "Medicines")
+                                        is Screens.Aisle -> Text(text = stringResource(R.string.aisles_direction_name))
+                                        is Screens.Medicine -> Text(text = stringResource(R.string.medicines_direction_name))
                                         is Screens.AisleDetail -> Text(text = currentDestination.name)
                                         is Screens.MedicineDetail -> Text(text = currentDestination.name)
-                                        else -> Text(text = "Rebonnte")
+                                        is Screens.MedicineAdd -> Text(text = stringResource(R.string.add_medicine_direction_name))
+                                        else -> Text(text = stringResource(R.string.rebonnte_direction_name))
                                     }
                                 },
                                 actions = {
@@ -157,7 +162,7 @@ class MainActivity : ComponentActivity() {
                             NavigationBarItem(
                                 icon = { Icon(Icons.AutoMirrored.Filled.List, contentDescription = null) },
                                 label = { Text("Medicine") },
-                                selected = currentDestination == Screens.Medicine || currentDestination is Screens.MedicineDetail,
+                                selected = currentDestination == Screens.Medicine || currentDestination is Screens.MedicineDetail || currentDestination == Screens.MedicineAdd,
                                 onClick = {
                                     if (currentDestination != Screens.Medicine) {
                                         backStack.clear()
@@ -168,15 +173,17 @@ class MainActivity : ComponentActivity() {
                         }
                     },
                     floatingActionButton = {
-                        if (currentDestination == Screens.Medicine || currentDestination == Screens.Aisle) {
+                        if (currentDestination == Screens.Aisle) {
                             FloatingActionButton(onClick = {
-                                if (currentDestination == Screens.Medicine) {
-                                    medicineViewModel.addRandomMedicine(aisleViewModel.aisles.value)
-                                } else if (currentDestination == Screens.Aisle) {
                                     aisleViewModel.addRandomAisle()
-                                }
                             }) {
-                                Icon(Icons.Default.Add, contentDescription = "Add")
+                                Icon(Icons.Default.Add, contentDescription = stringResource(R.string.add_aisle_content_description))
+                            }
+                        } else if (currentDestination == Screens.Medicine && aisles.isNotEmpty()) {
+                            FloatingActionButton(onClick = {
+                                backStack.add(Screens.MedicineAdd)
+                            }) {
+                                Icon(Icons.Default.Add, contentDescription = stringResource(R.string.add_medicine_content_description))
                             }
                         }
                     }
@@ -219,6 +226,15 @@ class MainActivity : ComponentActivity() {
                                     MedicineDetailScreen(
                                         name = key.name,
                                         viewModel = koinViewModel()
+                                    )
+                                }
+                                is Screens.MedicineAdd -> NavEntry(key) {
+                                    MedicineAddScreen(
+                                        viewModel = medicineViewModel,
+                                        aislesList = aisles,
+                                        onMedicineCreated = {
+                                            backStack.removeLastOrNull()
+                                        }
                                     )
                                 }
                                 else -> NavEntry(Unit) {}

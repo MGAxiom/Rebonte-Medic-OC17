@@ -35,8 +35,8 @@ class MedicineViewModel(private val repository: MedicineRepository) : ViewModel(
         filtered
     }.stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
 
-    fun addRandomMedicine(aisles: List<Aisle>) {
-        repository.addRandomMedicine(aisles)
+    fun addMedicine(medicine: Medicine) {
+        repository.addMedicine(medicine)
     }
 
     fun filterByName(name: String) {

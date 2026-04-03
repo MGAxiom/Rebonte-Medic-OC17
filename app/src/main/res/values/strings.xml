@@ -3,4 +3,17 @@
     <string name="confirm_deletion">Confirm Deletion</string>
     <string name="cancel_button">Cancel</string>
     <string name="are_you_sure_you_want_to_delete">Are you sure you want to delete \'%1$s\'?</string>
+    <string name="stock_medicine_placeholder">What\'s the stock of this medicine?</string>
+    <string name="aisle_medicine_placeholder">In which aisle is it located?</string>
+    <string name="medicine_placeholder">What\'s your medicine name?</string>
+    <string name="medicine_name">Medicine Name</string>
+    <string name="aisle">Aisle</string>
+    <string name="stock">Stock</string>
+    <string name="medicine_add_confirm_button">Confirm</string>
+    <string name="add_medicine_direction_name">Add Medicine</string>
+    <string name="medicines_direction_name">Medicines</string>
+    <string name="aisles_direction_name">Aisles</string>
+    <string name="rebonnte_direction_name">Rebonnte</string>
+    <string name="add_medicine_content_description">Add Medicine</string>
+    <string name="add_aisle_content_description">Add aisle</string>
 </resources>

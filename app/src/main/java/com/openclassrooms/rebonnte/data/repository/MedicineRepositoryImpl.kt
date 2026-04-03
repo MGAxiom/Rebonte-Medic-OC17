@@ -14,14 +14,13 @@ class MedicineRepositoryImpl : MedicineRepository {
     private val _medicines = MutableStateFlow<List<Medicine>>(emptyList())
     override val medicines: StateFlow<List<Medicine>> = _medicines.asStateFlow()
 
-    override fun addRandomMedicine(aisles: List<Aisle>) {
-        if (aisles.isEmpty()) return
+    override fun addMedicine(medicine: Medicine) {
         val currentList = _medicines.value.toMutableList()
         currentList.add(
             Medicine(
-                name = "Medicine ${currentList.size + 1}",
-                stock = Random().nextInt(100),
-                nameAisle = aisles[Random().nextInt(aisles.size)].name,
+                name = medicine.name,
+                stock = medicine.stock,
+                nameAisle = medicine.nameAisle,
                 histories = emptyList()
             )
         )

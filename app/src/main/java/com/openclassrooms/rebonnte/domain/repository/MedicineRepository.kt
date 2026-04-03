@@ -6,7 +6,7 @@ import kotlinx.coroutines.flow.StateFlow
 
 interface MedicineRepository {
     val medicines: StateFlow<List<Medicine>>
-    fun addRandomMedicine(aisles: List<Aisle>)
+    fun addMedicine(medicine: Medicine)
     fun removeMedicine(medicineName: String)
     fun updateStock(medicineName: String, increment: Boolean)
 }
