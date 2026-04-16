@@ -16,4 +16,5 @@
     <string name="rebonnte_direction_name">Rebonnte</string>
     <string name="add_medicine_content_description">Add Medicine</string>
     <string name="add_aisle_content_description">Add aisle</string>
+    <string name="default_google_client_id">829649729581-e696bjmp2cqrq4li2ptle98b821q9mjb.apps.googleusercontent.com</string>
 </resources>

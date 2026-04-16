@@ -1,0 +1,35 @@
+package com.openclassrooms.rebonnte.data.repository
+
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseUser
+import com.google.firebase.auth.GoogleAuthProvider
+import com.openclassrooms.rebonnte.domain.repository.AuthRepository
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.tasks.await
+
+class AuthRepositoryImpl : AuthRepository {
+    private val auth = FirebaseAuth.getInstance()
+    private val _currentUser = MutableStateFlow(auth.currentUser)
+    override val currentUser: StateFlow<FirebaseUser?> = _currentUser
+
+    init {
+        auth.addAuthStateListener {
+            _currentUser.value = it.currentUser
+        }
+    }
+
+    override suspend fun signInWithGoogle(idToken: String): Result<Unit> {
+        return try {
+            val credential = GoogleAuthProvider.getCredential(idToken, null)
+            auth.signInWithCredential(credential).await()
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    override suspend fun signOut() {
+        auth.signOut()
+    }
+}
