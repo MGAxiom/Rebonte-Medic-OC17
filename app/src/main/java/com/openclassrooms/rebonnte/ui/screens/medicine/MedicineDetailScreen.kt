@@ -1,4 +1,4 @@
-package com.openclassrooms.rebonnte.ui.medicine
+package com.openclassrooms.rebonnte.ui.screens.medicine
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row

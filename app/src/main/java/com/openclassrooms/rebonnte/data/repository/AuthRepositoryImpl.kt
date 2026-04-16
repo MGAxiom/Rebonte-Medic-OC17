@@ -29,6 +29,20 @@ class AuthRepositoryImpl : AuthRepository {
         }
     }
 
+    override suspend fun updateDisplayName(name: String): Result<Unit> {
+        return try {
+            val user = auth.currentUser
+            val profileUpdates = com.google.firebase.auth.userProfileChangeRequest {
+                displayName = name
+            }
+            user?.updateProfile(profileUpdates)?.await()
+            _currentUser.value = auth.currentUser
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
     override suspend fun signOut() {
         auth.signOut()
     }

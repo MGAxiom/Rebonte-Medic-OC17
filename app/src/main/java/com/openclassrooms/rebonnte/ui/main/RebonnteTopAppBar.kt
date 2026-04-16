@@ -59,9 +59,9 @@ fun RebonnteTopAppBar(
             actions = {
                 var expanded by remember { mutableStateOf(false) }
 
-                IconButton(onClick = onSignOut) {
+                /*IconButton(onClick = onSignOut) {
                     Icon(Icons.AutoMirrored.Filled.ExitToApp, contentDescription = stringResource(R.string.sign_out))
-                }
+                }*/
 
                 if (currentDestination == Screens.Medicine) {
                     Row(

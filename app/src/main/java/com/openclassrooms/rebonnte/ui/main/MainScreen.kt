@@ -3,7 +3,6 @@ package com.openclassrooms.rebonnte.ui.main
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
@@ -12,32 +11,35 @@ import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.navigation3.runtime.NavEntry
-import androidx.navigation3.ui.NavDisplay
+import androidx.navigation.NavDestination.Companion.hasRoute
+import androidx.navigation.NavGraph.Companion.findStartDestination
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.navigation.compose.rememberNavController
+import androidx.navigation.toRoute
 import com.openclassrooms.rebonnte.R
-import com.openclassrooms.rebonnte.ui.aisle.AisleDetailScreen
-import com.openclassrooms.rebonnte.ui.aisle.AisleScreen
-import com.openclassrooms.rebonnte.ui.aisle.AisleViewModel
-import com.openclassrooms.rebonnte.ui.login.LoginViewModel
-import com.openclassrooms.rebonnte.ui.medicine.MedicineAddScreen
-import com.openclassrooms.rebonnte.ui.medicine.MedicineDetailScreen
-import com.openclassrooms.rebonnte.ui.medicine.MedicineScreen
-import com.openclassrooms.rebonnte.ui.medicine.MedicineViewModel
 import com.openclassrooms.rebonnte.ui.navigation.Screens
+import com.openclassrooms.rebonnte.ui.screens.aisle.AisleDetailScreen
+import com.openclassrooms.rebonnte.ui.screens.aisle.AisleScreen
+import com.openclassrooms.rebonnte.ui.screens.aisle.AisleViewModel
+import com.openclassrooms.rebonnte.ui.screens.login.LoginViewModel
+import com.openclassrooms.rebonnte.ui.screens.medicine.MedicineAddScreen
+import com.openclassrooms.rebonnte.ui.screens.medicine.MedicineDetailScreen
+import com.openclassrooms.rebonnte.ui.screens.medicine.MedicineScreen
+import com.openclassrooms.rebonnte.ui.screens.medicine.MedicineViewModel
+import com.openclassrooms.rebonnte.ui.screens.profile.ProfileScreen
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 
@@ -47,8 +49,23 @@ fun MainScreen(
     aisleViewModel: AisleViewModel = koinViewModel(),
     medicineViewModel: MedicineViewModel = koinViewModel()
 ) {
-    val backStack = remember { mutableStateListOf<Any>(Screens.Aisle) }
-    val currentDestination = backStack.lastOrNull()
+    val navController = rememberNavController()
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
+
+    // We manually extract the current destination object to maintain compatibility with existing components
+    val currentDestination: Any? = remember(navBackStackEntry) {
+        val destination = navBackStackEntry?.destination
+        when {
+            destination?.hasRoute<Screens.Aisle>() == true -> Screens.Aisle
+            destination?.hasRoute<Screens.Medicine>() == true -> Screens.Medicine
+            destination?.hasRoute<Screens.AisleDetail>() == true -> navBackStackEntry?.toRoute<Screens.AisleDetail>()
+            destination?.hasRoute<Screens.MedicineDetail>() == true -> navBackStackEntry?.toRoute<Screens.MedicineDetail>()
+            destination?.hasRoute<Screens.MedicineAdd>() == true -> Screens.MedicineAdd
+            destination?.hasRoute<Screens.Profile>() == true -> Screens.Profile
+            else -> null
+        }
+    }
+
     val aisles by aisleViewModel.aisles.collectAsState()
     val scope = rememberCoroutineScope()
 
@@ -77,21 +94,30 @@ fun MainScreen(
             RebonnteBottomBar(
                 currentDestination = currentDestination,
                 onNavigateToAisle = {
-                    if (currentDestination != Screens.Aisle) {
-                        backStack.clear()
-                        backStack.add(Screens.Aisle)
+                    navController.navigate(Screens.Aisle) {
+                        popUpTo(navController.graph.findStartDestination().id) {
+                            saveState = true
+                        }
+                        launchSingleTop = true
+                        restoreState = true
                     }
                 },
                 onNavigateToMedicine = {
-                    if (currentDestination != Screens.Medicine) {
-                        backStack.clear()
-                        backStack.add(Screens.Medicine)
+                    navController.navigate(Screens.Medicine) {
+                        popUpTo(navController.graph.findStartDestination().id) {
+                            saveState = true
+                        }
+                        launchSingleTop = true
+                        restoreState = true
                     }
                 },
                 onNavigateToProfile = {
-                    if (currentDestination != Screens.Profile) {
-                        backStack.clear()
-                        backStack.add(Screens.Profile)
+                    navController.navigate(Screens.Profile) {
+                        popUpTo(navController.graph.findStartDestination().id) {
+                            saveState = true
+                        }
+                        launchSingleTop = true
+                        restoreState = true
                     }
                 }
             )
@@ -101,7 +127,7 @@ fun MainScreen(
                 currentDestination = currentDestination,
                 aislesNotEmpty = aisles.isNotEmpty(),
                 onAddRandomAisle = { aisleViewModel.addRandomAisle() },
-                onNavigateToAddMedicine = { backStack.add(Screens.MedicineAdd) },
+                onNavigateToAddMedicine = { navController.navigate(Screens.MedicineAdd) },
                 onScrollToTop = {
                     scope.launch {
                         medicineViewModel.detailListState.animateScrollToItem(0)
@@ -116,61 +142,57 @@ fun MainScreen(
             )
         }
     ) { innerPadding ->
-        NavDisplay(
-            modifier = Modifier.padding(innerPadding),
-            backStack = backStack,
-            onBack = { backStack.removeLastOrNull() },
-            entryProvider = { key ->
-                when (key) {
-                    is Screens.Aisle -> NavEntry(key) {
-                        AisleScreen(
-                            viewModel = koinViewModel(),
-                            onAisleClick = { name ->
-                                backStack.add(Screens.AisleDetail(name))
-                            }
-                        )
+        NavHost(
+            navController = navController,
+            startDestination = Screens.Aisle,
+            modifier = Modifier.padding(innerPadding)
+        ) {
+            composable<Screens.Aisle> {
+                AisleScreen(
+                    viewModel = koinViewModel(),
+                    onAisleClick = { name ->
+                        navController.navigate(Screens.AisleDetail(name))
                     }
-                    is Screens.Medicine -> NavEntry(key) {
-                        MedicineScreen(
-                            viewModel = koinViewModel(),
-                            onDetailClick = { name ->
-                                backStack.add(Screens.MedicineDetail(name))
-                            }
-                        )
-                    }
-                    is Screens.AisleDetail -> NavEntry(key) {
-                        AisleDetailScreen(
-                            name = key.name,
-                            viewModel = koinViewModel(),
-                            onMedicineClick = { medicineName ->
-                                backStack.add(Screens.MedicineDetail(medicineName))
-                            }
-                        )
-                    }
-                    is Screens.MedicineDetail -> NavEntry(key) {
-                        MedicineDetailScreen(
-                            name = key.name,
-                            viewModel = koinViewModel()
-                        )
-                    }
-                    is Screens.MedicineAdd -> NavEntry(key) {
-                        MedicineAddScreen(
-                            viewModel = medicineViewModel,
-                            aislesList = aisles,
-                            onMedicineCreated = {
-                                backStack.removeLastOrNull()
-                            }
-                        )
-                    }
-                    is Screens.Profile -> NavEntry(key) {
-                        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                            Text("Profile Screen")
-                        }
-                    }
-                    else -> NavEntry(Unit) {}
-                }
+                )
             }
-        )
+            composable<Screens.Medicine> {
+                MedicineScreen(
+                    viewModel = koinViewModel(),
+                    onDetailClick = { name ->
+                        navController.navigate(Screens.MedicineDetail(name))
+                    }
+                )
+            }
+            composable<Screens.AisleDetail> { backStackEntry ->
+                val route = backStackEntry.toRoute<Screens.AisleDetail>()
+                AisleDetailScreen(
+                    name = route.name,
+                    viewModel = koinViewModel(),
+                    onMedicineClick = { medicineName ->
+                        navController.navigate(Screens.MedicineDetail(medicineName))
+                    }
+                )
+            }
+            composable<Screens.MedicineDetail> { backStackEntry ->
+                val route = backStackEntry.toRoute<Screens.MedicineDetail>()
+                MedicineDetailScreen(
+                    name = route.name,
+                    viewModel = koinViewModel()
+                )
+            }
+            composable<Screens.MedicineAdd> {
+                MedicineAddScreen(
+                    viewModel = medicineViewModel,
+                    aislesList = aisles,
+                    onMedicineCreated = {
+                        navController.popBackStack()
+                    }
+                )
+            }
+            composable<Screens.Profile> {
+                ProfileScreen(viewModel = loginViewModel)
+            }
+        }
     }
 }
 

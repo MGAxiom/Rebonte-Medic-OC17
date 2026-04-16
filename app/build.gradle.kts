@@ -3,13 +3,14 @@ import org.gradle.kotlin.dsl.debugImplementation
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
+    alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.compose.compiler)
     alias(libs.plugins.google.gms.google.services)
 }
 
 android {
     namespace = "com.openclassrooms.rebonnte"
-    compileSdk = 36
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "com.openclassrooms.rebonnte"
@@ -61,13 +62,13 @@ dependencies {
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
     implementation(libs.androidx.navigation.compose)
-    
+    implementation(libs.coil.compose)
+    implementation(libs.kotlinx.serialization.json)
+
     // Koin
     implementation(libs.koin.android)
     implementation(libs.koin.androidx.compose)
-    implementation(libs.androidx.navigation3.runtime)
-    implementation(libs.androidx.navigation3.ui)
-    implementation(libs.androidx.navigationevent)
+
     implementation(libs.firebase.auth)
     implementation(libs.androidx.credentials)
     implementation(libs.androidx.credentials.play.services.auth)

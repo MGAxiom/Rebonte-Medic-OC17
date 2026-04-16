@@ -1,4 +1,4 @@
-package com.openclassrooms.rebonnte.ui.login
+package com.openclassrooms.rebonnte.ui.screens.login
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -25,6 +25,12 @@ class LoginViewModel(private val authRepository: AuthRepository) : ViewModel() {
         }
     }
 
+    fun updateDisplayName(name: String) {
+        viewModelScope.launch {
+            authRepository.updateDisplayName(name)
+        }
+    }
+
     fun signOut() {
         viewModelScope.launch {
             authRepository.signOut()
@@ -33,8 +39,8 @@ class LoginViewModel(private val authRepository: AuthRepository) : ViewModel() {
 }
 
 sealed class LoginState {
-    object Idle : LoginState()
-    object Loading : LoginState()
-    object Success : LoginState()
+    data object Idle : LoginState()
+    data object Loading : LoginState()
+    data object Success : LoginState()
     data class Error(val message: String) : LoginState()
 }

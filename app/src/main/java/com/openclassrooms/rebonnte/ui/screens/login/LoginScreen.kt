@@ -1,4 +1,4 @@
-package com.openclassrooms.rebonnte.ui.login
+package com.openclassrooms.rebonnte.ui.screens.login
 
 import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement

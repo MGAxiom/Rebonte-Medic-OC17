@@ -25,4 +25,6 @@
     <string name="medicine_tab">Medicine</string>
     <string name="account_tab">Account</string>
     <string name="back_to_top">Back to top</string>
+    <string name="name_label">Name</string>
+    <string name="email_label">Email</string>
 </resources>

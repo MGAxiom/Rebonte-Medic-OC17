@@ -1,4 +1,4 @@
-package com.openclassrooms.rebonnte.ui.aisle
+package com.openclassrooms.rebonnte.ui.screens.aisle
 
 import androidx.lifecycle.ViewModel
 import com.openclassrooms.rebonnte.domain.model.Aisle
