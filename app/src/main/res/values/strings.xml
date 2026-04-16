@@ -17,4 +17,12 @@
     <string name="add_medicine_content_description">Add Medicine</string>
     <string name="add_aisle_content_description">Add aisle</string>
     <string name="default_google_client_id">829649729581-e696bjmp2cqrq4li2ptle98b821q9mjb.apps.googleusercontent.com</string>
+    <string name="sign_out">Sign Out</string>
+    <string name="sort_by_none">Sort by None</string>
+    <string name="sort_by_name">Sort by Name</string>
+    <string name="sort_by_stock">Sort by Stock</string>
+    <string name="aisle_tab">Aisle</string>
+    <string name="medicine_tab">Medicine</string>
+    <string name="account_tab">Account</string>
+    <string name="back_to_top">Back to top</string>
 </resources>
