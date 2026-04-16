@@ -4,6 +4,9 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -15,6 +18,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -29,10 +33,12 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -52,6 +58,7 @@ import com.openclassrooms.rebonnte.ui.medicine.MedicineScreen
 import com.openclassrooms.rebonnte.ui.medicine.MedicineViewModel
 import com.openclassrooms.rebonnte.ui.navigation.Screens
 import com.openclassrooms.rebonnte.ui.theme.RebonnteTheme
+import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 
 class MainActivity : ComponentActivity() {
@@ -67,6 +74,8 @@ class MainActivity : ComponentActivity() {
                 val aisleViewModel = koinViewModel<AisleViewModel>()
                 val medicineViewModel = koinViewModel<MedicineViewModel>()
                 val aisles by aisleViewModel.aisles.collectAsState()
+
+                val scope = rememberCoroutineScope()
 
                 Scaffold(
                     modifier = Modifier.fillMaxSize(),
@@ -184,6 +193,26 @@ class MainActivity : ComponentActivity() {
                                 backStack.add(Screens.MedicineAdd)
                             }) {
                                 Icon(Icons.Default.Add, contentDescription = stringResource(R.string.add_medicine_content_description))
+                            }
+                        } else if (currentDestination is Screens.MedicineDetail) {
+                            val showButton by remember {
+                                derivedStateOf {
+                                    medicineViewModel.detailListState.firstVisibleItemIndex > 0 ||
+                                            medicineViewModel.detailListState.firstVisibleItemScrollOffset > 0
+                                }
+                            }
+                            AnimatedVisibility(
+                                visible = showButton,
+                                enter = fadeIn(),
+                                exit = fadeOut()
+                            ) {
+                                FloatingActionButton(onClick = {
+                                    scope.launch {
+                                        medicineViewModel.detailListState.animateScrollToItem(0)
+                                    }
+                                }) {
+                                    Icon(Icons.Default.KeyboardArrowUp, contentDescription = "Back to top")
+                                }
                             }
                         }
                     }

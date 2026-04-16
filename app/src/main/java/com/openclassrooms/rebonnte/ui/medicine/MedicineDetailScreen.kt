@@ -33,62 +33,67 @@ fun MedicineDetailScreen(name: String, viewModel: MedicineViewModel) {
     val medicines by viewModel.medicines.collectAsState()
     val medicine = medicines.find { it.name == name } ?: return
 
-    Column(
+    LazyColumn(
+        state = viewModel.detailListState,
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp)
+            .padding(horizontal = 16.dp)
     ) {
-        TextField(
-            value = medicine.name,
-            onValueChange = {},
-            label = { Text("Name") },
-            enabled = false,
-            modifier = Modifier.fillMaxWidth()
-        )
-        Spacer(modifier = Modifier.height(8.dp))
-        TextField(
-            value = medicine.nameAisle,
-            onValueChange = {},
-            label = { Text("Aisle") },
-            enabled = false,
-            modifier = Modifier.fillMaxWidth()
-        )
-        Spacer(modifier = Modifier.height(8.dp))
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            IconButton(onClick = {
-                viewModel.updateStock(medicine.name, increment = false)
-            }) {
-                Icon(
-                    imageVector = Icons.Filled.KeyboardArrowDown,
-                    contentDescription = "Minus One"
-                )
-            }
+        item {
+            Spacer(modifier = Modifier.height(16.dp))
             TextField(
-                value = medicine.stock.toString(),
+                value = medicine.name,
                 onValueChange = {},
-                label = { Text("Stock") },
+                label = { Text("Name") },
                 enabled = false,
-                modifier = Modifier.weight(1f)
+                modifier = Modifier.fillMaxWidth()
             )
-            IconButton(onClick = {
-                viewModel.updateStock(medicine.name, increment = true)
-            }) {
-                Icon(
-                    imageVector = Icons.Default.KeyboardArrowUp,
-                    contentDescription = "Plus One"
+            Spacer(modifier = Modifier.height(8.dp))
+            TextField(
+                value = medicine.nameAisle,
+                onValueChange = {},
+                label = { Text("Aisle") },
+                enabled = false,
+                modifier = Modifier.fillMaxWidth()
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                IconButton(onClick = {
+                    viewModel.updateStock(medicine.name, increment = false)
+                }) {
+                    Icon(
+                        imageVector = Icons.Filled.KeyboardArrowDown,
+                        contentDescription = "Minus One"
+                    )
+                }
+                TextField(
+                    value = medicine.stock.toString(),
+                    onValueChange = {},
+                    label = { Text("Stock") },
+                    enabled = false,
+                    modifier = Modifier.weight(1f)
                 )
+                IconButton(onClick = {
+                    viewModel.updateStock(medicine.name, increment = true)
+                }) {
+                    Icon(
+                        imageVector = Icons.Default.KeyboardArrowUp,
+                        contentDescription = "Plus One"
+                    )
+                }
             }
+            Spacer(modifier = Modifier.height(16.dp))
+            Text(text = "History", style = MaterialTheme.typography.titleLarge)
+            Spacer(modifier = Modifier.height(8.dp))
         }
-        Spacer(modifier = Modifier.height(16.dp))
-        Text(text = "History", style = MaterialTheme.typography.titleLarge)
-        Spacer(modifier = Modifier.height(8.dp))
-        LazyColumn(modifier = Modifier.fillMaxSize()) {
-            items(medicine.histories) { history ->
-                HistoryItem(history = history)
-            }
+        items(medicine.histories, key = { it.id }) { history ->
+            HistoryItem(history = history)
+        }
+        item {
+            Spacer(modifier = Modifier.height(16.dp))
         }
     }
 }

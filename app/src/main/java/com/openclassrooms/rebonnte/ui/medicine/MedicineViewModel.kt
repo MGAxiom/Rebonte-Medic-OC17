@@ -1,5 +1,6 @@
 package com.openclassrooms.rebonnte.ui.medicine
 
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.openclassrooms.rebonnte.domain.model.Aisle
@@ -15,6 +16,8 @@ class MedicineViewModel(private val repository: MedicineRepository) : ViewModel(
 
     private val _searchQuery = MutableStateFlow("")
     private val _sortType = MutableStateFlow(SortType.NONE)
+
+    val detailListState = LazyListState()
 
     val medicines: StateFlow<List<Medicine>> = combine(
         repository.medicines,

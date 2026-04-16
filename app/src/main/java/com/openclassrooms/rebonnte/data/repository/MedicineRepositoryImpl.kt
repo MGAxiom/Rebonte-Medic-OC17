@@ -1,14 +1,16 @@
 package com.openclassrooms.rebonnte.data.repository
 
+import android.R.attr.name
 import com.openclassrooms.rebonnte.domain.model.Aisle
 import com.openclassrooms.rebonnte.domain.model.History
 import com.openclassrooms.rebonnte.domain.model.Medicine
 import com.openclassrooms.rebonnte.domain.repository.MedicineRepository
+import com.openclassrooms.rebonnte.utils.DateFormatter
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import java.util.Date
 import java.util.Random
+import java.util.UUID
 
 class MedicineRepositoryImpl : MedicineRepository {
     private val _medicines = MutableStateFlow<List<Medicine>>(emptyList())
@@ -45,7 +47,7 @@ class MedicineRepositoryImpl : MedicineRepository {
                 History(
                     medicineName = medicine.name,
                     userId = "user_id_placeholder",
-                    date = Date().toString(),
+                    date = DateFormatter.getCurrentFormattedDate(),
                     details = if (increment) "Stock incremented" else "Stock decremented"
                 )
             )
