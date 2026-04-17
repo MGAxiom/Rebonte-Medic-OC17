@@ -1,6 +1,8 @@
 package com.openclassrooms.rebonnte.data.repository
 
-import android.R.attr.name
+import android.content.Context
+import com.google.firebase.auth.FirebaseAuth
+import com.openclassrooms.rebonnte.R
 import com.openclassrooms.rebonnte.domain.model.Aisle
 import com.openclassrooms.rebonnte.domain.model.History
 import com.openclassrooms.rebonnte.domain.model.Medicine
@@ -12,7 +14,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import java.util.Random
 import java.util.UUID
 
-class MedicineRepositoryImpl : MedicineRepository {
+class MedicineRepositoryImpl(private val context: Context) : MedicineRepository {
     private val _medicines = MutableStateFlow<List<Medicine>>(emptyList())
     override val medicines: StateFlow<List<Medicine>> = _medicines.asStateFlow()
 
@@ -37,21 +39,26 @@ class MedicineRepositoryImpl : MedicineRepository {
 
     override fun updateStock(medicineName: String, increment: Boolean) {
         val currentList = _medicines.value.toMutableList()
+        val currentUser = FirebaseAuth.getInstance().currentUser
         val index = currentList.indexOfFirst { it.name == medicineName }
         if (index != -1) {
             val medicine = currentList[index]
             val newStock = if (increment) medicine.stock + 1 else (medicine.stock - 1).coerceAtLeast(0)
             
             val newHistories = medicine.histories.toMutableList()
-            newHistories.add(
-                History(
-                    medicineName = medicine.name,
-                    userId = "user_id_placeholder",
-                    date = DateFormatter.getCurrentFormattedDate(),
-                    details = if (increment) "Stock incremented" else "Stock decremented"
+            currentUser?.let {
+                newHistories.add(
+                    History(
+                        medicineName = medicine.name,
+                        userId = it.displayName.toString(),
+                        date = DateFormatter.getCurrentFormattedDate(),
+                        details = if (increment) 
+                            context.getString(R.string.stock_incremented) else 
+                                context.getString(R.string.stock_decremented)
+                    )
                 )
-            )
-            
+            }
+
             currentList[index] = medicine.copy(stock = newStock, histories = newHistories)
             _medicines.value = currentList
         }

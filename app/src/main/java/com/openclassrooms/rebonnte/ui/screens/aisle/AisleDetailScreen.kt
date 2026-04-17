@@ -7,8 +7,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
+import com.openclassrooms.rebonnte.domain.model.Medicine
 import com.openclassrooms.rebonnte.ui.components.SwipeableItem
 import com.openclassrooms.rebonnte.ui.screens.medicine.MedicineViewModel
+import com.openclassrooms.rebonnte.ui.theme.RebonnteTheme
 
 @Composable
 fun AisleDetailScreen(
@@ -20,17 +23,47 @@ fun AisleDetailScreen(
     val medicines by viewModel.medicines.collectAsState()
     val filteredMedicines = medicines.filter { it.nameAisle == name }
 
+    AisleDetailScreenContent(
+        medicines = filteredMedicines,
+        onMedicineClick = onMedicineClick,
+        onDeleteMedicine = { viewModel.removeMedicine(it) },
+        modifier = modifier
+    )
+}
+
+@Composable
+private fun AisleDetailScreenContent(
+    medicines: List<Medicine>,
+    onMedicineClick: (String) -> Unit,
+    onDeleteMedicine: (String) -> Unit,
+    modifier: Modifier = Modifier
+) {
     LazyColumn(
-        modifier = Modifier.fillMaxSize()
+        modifier = modifier.fillMaxSize()
     ) {
-        items(filteredMedicines, key = { it.name }) { medicine ->
+        items(medicines, key = { it.name }) { medicine ->
             SwipeableItem(
                 title = medicine.name,
                 subtitle = "Stock: ${medicine.stock}",
-                onDelete = { viewModel.removeMedicine(medicine.name) },
+                onDelete = { onDeleteMedicine(medicine.name) },
                 onClick = { onMedicineClick(medicine.name) },
-                modifier = modifier
+                modifier = Modifier
             )
         }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun AisleDetailScreenPreview() {
+    RebonnteTheme {
+        AisleDetailScreenContent(
+            medicines = listOf(
+                Medicine(name = "Paracetamol", stock = 10, nameAisle = "Aisle 1", histories = emptyList()),
+                Medicine(name = "Ibuprofen", stock = 5, nameAisle = "Aisle 1", histories = emptyList())
+            ),
+            onMedicineClick = {},
+            onDeleteMedicine = {}
+        )
     }
 }

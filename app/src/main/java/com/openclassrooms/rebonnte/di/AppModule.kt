@@ -14,7 +14,7 @@ import org.koin.dsl.module
 
 val appModule = module {
     single<AisleRepository> { AisleRepositoryImpl() }
-    single<MedicineRepository> { MedicineRepositoryImpl() }
+    single<MedicineRepository> { MedicineRepositoryImpl(get()) }
     single<AuthRepository> { AuthRepositoryImpl() }
 
     viewModel { AisleViewModel(get()) }

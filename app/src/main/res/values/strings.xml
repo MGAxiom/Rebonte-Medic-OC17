@@ -27,4 +27,6 @@
     <string name="back_to_top">Back to top</string>
     <string name="name_label">Name</string>
     <string name="email_label">Email</string>
+    <string name="stock_incremented">Stock incremented</string>
+    <string name="stock_decremented">Stock decremented</string>
 </resources>

@@ -29,7 +29,7 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun RebonnteAppContent() {
     val loginViewModel: LoginViewModel = koinViewModel()
-    val currentUser by loginViewModel.currentUser.collectAsState()
+    val currentUser by loginViewModel.user.collectAsState()
 
     if (currentUser == null) {
         LoginScreen(

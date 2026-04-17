@@ -1,4 +1,4 @@
-package com.openclassrooms.rebonnte.ui.screens.medicine
+package com.openclassrooms.rebonnte.ui.medicine
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
@@ -26,37 +25,17 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.openclassrooms.rebonnte.domain.model.History
-import com.openclassrooms.rebonnte.domain.model.Medicine
-import com.openclassrooms.rebonnte.ui.theme.RebonnteTheme
 
 @Composable
 fun MedicineDetailScreen(name: String, viewModel: MedicineViewModel) {
     val medicines by viewModel.medicines.collectAsState()
     val medicine = medicines.find { it.name == name } ?: return
 
-    MedicineDetailScreenContent(
-        medicine = medicine,
-        onUpdateStock = { increment ->
-            viewModel.updateStock(medicine.name, increment = increment)
-        },
-        modifier = Modifier,
-        state = viewModel.detailListState
-    )
-}
-
-@Composable
-private fun MedicineDetailScreenContent(
-    medicine: Medicine,
-    onUpdateStock: (Boolean) -> Unit,
-    modifier: Modifier = Modifier,
-    state: androidx.compose.foundation.lazy.LazyListState = rememberLazyListState()
-) {
     LazyColumn(
-        state = state,
-        modifier = modifier
+        state = viewModel.detailListState,
+        modifier = Modifier
             .fillMaxSize()
             .padding(horizontal = 16.dp)
     ) {
@@ -83,7 +62,7 @@ private fun MedicineDetailScreenContent(
                 modifier = Modifier.fillMaxWidth()
             ) {
                 IconButton(onClick = {
-                    onUpdateStock(false)
+                    viewModel.updateStock(medicine.name, increment = false)
                 }) {
                     Icon(
                         imageVector = Icons.Filled.KeyboardArrowDown,
@@ -98,7 +77,7 @@ private fun MedicineDetailScreenContent(
                     modifier = Modifier.weight(1f)
                 )
                 IconButton(onClick = {
-                    onUpdateStock(true)
+                    viewModel.updateStock(medicine.name, increment = true)
                 }) {
                     Icon(
                         imageVector = Icons.Default.KeyboardArrowUp,
@@ -133,23 +112,5 @@ fun HistoryItem(history: History) {
             Text(text = "Date: ${history.date}")
             Text(text = "Details: ${history.details}")
         }
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-private fun MedicineDetailScreenPreview() {
-    RebonnteTheme {
-        MedicineDetailScreenContent(
-            medicine = Medicine(
-                name = "Paracetamol",
-                nameAisle = "Aisle 1",
-                stock = 10,
-                histories = listOf(
-                    History(medicineName = "Paracetamol", userId = "user1", date = "2023-10-27", details = "Stock incremented")
-                )
-            ),
-            onUpdateStock = {}
-        )
     }
 }

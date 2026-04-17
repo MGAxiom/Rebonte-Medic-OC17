@@ -19,11 +19,13 @@ class AuthRepositoryImpl : AuthRepository {
         }
     }
 
-    override suspend fun signInWithGoogle(idToken: String): Result<Unit> {
+    override suspend fun signInWithGoogle(idToken: String): Result<FirebaseUser?> {
         return try {
             val credential = GoogleAuthProvider.getCredential(idToken, null)
-            auth.signInWithCredential(credential).await()
-            Result.success(Unit)
+            val result = auth.signInWithCredential(credential).await()
+            val firebaseUser = result.user
+            _currentUser.value = firebaseUser
+            Result.success(firebaseUser)
         } catch (e: Exception) {
             Result.failure(e)
         }

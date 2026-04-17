@@ -15,7 +15,7 @@ android {
     defaultConfig {
         applicationId = "com.openclassrooms.rebonnte"
         minSdk = 24
-        targetSdk = 34
+        targetSdk = 35
         versionCode = 1
         versionName = "1.0"
 
@@ -64,6 +64,7 @@ dependencies {
     implementation(libs.androidx.navigation.compose)
     implementation(libs.coil.compose)
     implementation(libs.kotlinx.serialization.json)
+    implementation(libs.coil.network.okhttp)
 
     // Koin
     implementation(libs.koin.android)
