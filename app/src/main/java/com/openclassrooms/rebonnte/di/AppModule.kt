@@ -6,9 +6,9 @@ import com.openclassrooms.rebonnte.data.repository.MedicineRepositoryImpl
 import com.openclassrooms.rebonnte.domain.repository.AisleRepository
 import com.openclassrooms.rebonnte.domain.repository.AuthRepository
 import com.openclassrooms.rebonnte.domain.repository.MedicineRepository
-import com.openclassrooms.rebonnte.ui.screens.aisle.AisleViewModel
+import com.openclassrooms.rebonnte.ui.aisle.AisleViewModel
 import com.openclassrooms.rebonnte.ui.screens.login.LoginViewModel
-import com.openclassrooms.rebonnte.ui.screens.medicine.MedicineViewModel
+import com.openclassrooms.rebonnte.ui.medicine.MedicineViewModel
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.dsl.module
 

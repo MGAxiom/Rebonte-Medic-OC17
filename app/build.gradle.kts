@@ -10,7 +10,7 @@ plugins {
 
 android {
     namespace = "com.openclassrooms.rebonnte"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.openclassrooms.rebonnte"
@@ -62,6 +62,9 @@ dependencies {
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
     implementation(libs.androidx.navigation.compose)
+    implementation(libs.androidx.navigation3.runtime)
+    implementation(libs.androidx.navigation3.ui)
+    implementation(libs.androidx.navigationevent)
     implementation(libs.coil.compose)
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.coil.network.okhttp)
