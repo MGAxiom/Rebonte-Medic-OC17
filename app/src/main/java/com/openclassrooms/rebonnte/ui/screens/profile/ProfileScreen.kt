@@ -149,10 +149,7 @@ private fun UserProfilePicture(
     ) {
         if (imageUrl != null) {
             AsyncImage(
-                model = ImageRequest.Builder(context)
-                    .data(imageUrl)
-                    .crossfade(true)
-                    .build(),
+                model = imageUrl,
                 placeholder = rememberVectorPainter(Icons.Default.Person),
                 error = rememberVectorPainter(Icons.Default.Person),
                 contentDescription = "Profile Picture",

@@ -1,7 +1,12 @@
 package com.openclassrooms.rebonnte.ui.screens.login
 
+import android.content.Context
+import androidx.credentials.CredentialManager
+import androidx.credentials.GetCredentialRequest
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.android.libraries.identity.googleid.GetGoogleIdOption
+import com.openclassrooms.rebonnte.R
 import com.openclassrooms.rebonnte.domain.model.User
 import com.openclassrooms.rebonnte.domain.repository.AuthRepository
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -16,7 +21,6 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filter
-import kotlinx.coroutines.launch
 
 @OptIn(FlowPreview::class)
 class LoginViewModel(private val authRepository: AuthRepository) : ViewModel() {
@@ -66,6 +70,35 @@ class LoginViewModel(private val authRepository: AuthRepository) : ViewModel() {
             } else {
                 _loginState.value =
                     LoginState.Error(result.exceptionOrNull()?.message ?: "Unknown error")
+            }
+        }
+    }
+
+    fun signInWithGoogle(context: Context) {
+        viewModelScope.launch {
+            try {
+                val credentialManager = CredentialManager.create(context)
+
+                val googleIdOption = GetGoogleIdOption.Builder()
+                    .setFilterByAuthorizedAccounts(false)
+                    .setServerClientId(context.getString(R.string.default_google_client_id))
+                    .build()
+
+                val request = GetCredentialRequest.Builder()
+                    .addCredentialOption(googleIdOption)
+                    .build()
+
+                val result = credentialManager.getCredential(
+                    context = context,
+                    request = request
+                )
+
+                val idToken = result.credential.data.getString("com.google.android.libraries.identity.googleid.BUNDLE_KEY_ID_TOKEN")
+                if (idToken != null) {
+                    onSignInResult(idToken)
+                }
+            } catch (e: Exception) {
+                _loginState.value = LoginState.Error("Login failed: ${e.message}")
             }
         }
     }
