@@ -3,16 +3,23 @@ package com.openclassrooms.rebonnte.ui.medicine
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.openclassrooms.rebonnte.domain.model.Aisle
 import com.openclassrooms.rebonnte.domain.model.Medicine
-import com.openclassrooms.rebonnte.domain.repository.MedicineRepository
+import com.openclassrooms.rebonnte.domain.usecase.AddMedicineUseCase
+import com.openclassrooms.rebonnte.domain.usecase.GetMedicinesUseCase
+import com.openclassrooms.rebonnte.domain.usecase.RemoveMedicineUseCase
+import com.openclassrooms.rebonnte.domain.usecase.UpdateMedicineStockUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 
-class MedicineViewModel(private val repository: MedicineRepository) : ViewModel() {
+class MedicineViewModel(
+    private val getMedicinesUseCase: GetMedicinesUseCase,
+    private val addMedicineUseCase: AddMedicineUseCase,
+    private val updateMedicineStockUseCase: UpdateMedicineStockUseCase,
+    private val removeMedicineUseCase: RemoveMedicineUseCase
+) : ViewModel() {
 
     private val _searchQuery = MutableStateFlow("")
     private val _sortType = MutableStateFlow(SortType.NONE)
@@ -20,7 +27,7 @@ class MedicineViewModel(private val repository: MedicineRepository) : ViewModel(
     val detailListState = LazyListState()
 
     val medicines: StateFlow<List<Medicine>> = combine(
-        repository.medicines,
+        getMedicinesUseCase(),
         _searchQuery,
         _sortType
     ) { medicines, query, sortType ->
@@ -39,7 +46,7 @@ class MedicineViewModel(private val repository: MedicineRepository) : ViewModel(
     }.stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
 
     fun addMedicine(medicine: Medicine) {
-        repository.addMedicine(medicine)
+        addMedicineUseCase(medicine)
     }
 
     fun filterByName(name: String) {
@@ -59,11 +66,11 @@ class MedicineViewModel(private val repository: MedicineRepository) : ViewModel(
     }
 
     fun updateStock(medicineName: String, increment: Boolean) {
-        repository.updateStock(medicineName, increment)
+        updateMedicineStockUseCase(medicineName, increment)
     }
 
     fun removeMedicine(medicineName: String) {
-        repository.removeMedicine(medicineName)
+        removeMedicineUseCase(medicineName)
     }
 
 

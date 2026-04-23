@@ -72,8 +72,7 @@ private fun MedicineAddScreenContent(
                     Medicine(
                         name = name,
                         nameAisle = selectedAisle,
-                        stock = stockInt,
-                        histories = emptyList()
+                        stock = stockInt
                     )
                 )
             },

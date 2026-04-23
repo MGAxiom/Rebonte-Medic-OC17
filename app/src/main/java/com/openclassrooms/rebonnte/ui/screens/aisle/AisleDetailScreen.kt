@@ -59,8 +59,8 @@ private fun AisleDetailScreenPreview() {
     RebonnteTheme {
         AisleDetailScreenContent(
             medicines = listOf(
-                Medicine(name = "Paracetamol", stock = 10, nameAisle = "Aisle 1", histories = emptyList()),
-                Medicine(name = "Ibuprofen", stock = 5, nameAisle = "Aisle 1", histories = emptyList())
+                Medicine(name = "Paracetamol", stock = 10, nameAisle = "Aisle 1"),
+                Medicine(name = "Ibuprofen", stock = 5, nameAisle = "Aisle 1")
             ),
             onMedicineClick = {},
             onDeleteMedicine = {}

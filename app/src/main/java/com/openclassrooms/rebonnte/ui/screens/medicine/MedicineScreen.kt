@@ -56,8 +56,8 @@ private fun MedicineScreenPreview() {
     RebonnteTheme {
         MedicineScreenContent(
             medicines = listOf(
-                Medicine(name = "Paracetamol", stock = 10, nameAisle = "Aisle 1", histories = emptyList()),
-                Medicine(name = "Ibuprofen", stock = 5, nameAisle = "Aisle 2", histories = emptyList())
+                Medicine(name = "Paracetamol", stock = 10, nameAisle = "Aisle 1"),
+                Medicine(name = "Ibuprofen", stock = 5, nameAisle = "Aisle 2")
             ),
             onDetailClick = {},
             onDeleteMedicine = {}
