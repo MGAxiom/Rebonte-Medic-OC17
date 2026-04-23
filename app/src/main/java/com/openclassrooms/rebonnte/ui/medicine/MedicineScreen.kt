@@ -4,7 +4,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import com.openclassrooms.rebonnte.ui.components.SwipeableItem
@@ -15,7 +15,7 @@ fun MedicineScreen(
     onDetailClick: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val medicines by viewModel.medicines.collectAsState()
+    val medicines by viewModel.medicines.collectAsStateWithLifecycle()
 
     LazyColumn(
         modifier = Modifier.fillMaxSize()

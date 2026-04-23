@@ -5,7 +5,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.getValue
 import com.openclassrooms.rebonnte.ui.screens.login.LoginScreen
 import com.openclassrooms.rebonnte.ui.screens.login.LoginViewModel
@@ -29,7 +29,7 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun RebonnteAppContent() {
     val loginViewModel: LoginViewModel = koinViewModel()
-    val currentUser by loginViewModel.user.collectAsState()
+    val currentUser by loginViewModel.user.collectAsStateWithLifecycle()
 
     if (currentUser == null) {
         LoginScreen(

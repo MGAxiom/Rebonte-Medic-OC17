@@ -31,7 +31,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -58,9 +58,9 @@ import com.openclassrooms.rebonnte.ui.theme.RebonnteTheme
 fun ProfileScreen(
     viewModel: LoginViewModel
 ) {
-    val user by viewModel.user.collectAsState()
-    val isLoading by viewModel.profileLoading.collectAsState()
-    val error by viewModel.profileError.collectAsState()
+    val user by viewModel.user.collectAsStateWithLifecycle()
+    val isLoading by viewModel.profileLoading.collectAsStateWithLifecycle()
+    val error by viewModel.profileError.collectAsStateWithLifecycle()
     var name by remember(user?.name) { mutableStateOf(user?.name ?: "") }
     val snackbarHostState = remember { SnackbarHostState() }
 
