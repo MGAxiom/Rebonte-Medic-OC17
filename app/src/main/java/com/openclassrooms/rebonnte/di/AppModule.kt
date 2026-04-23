@@ -6,18 +6,26 @@ import com.openclassrooms.rebonnte.data.repository.MedicineRepositoryImpl
 import com.openclassrooms.rebonnte.domain.repository.AisleRepository
 import com.openclassrooms.rebonnte.domain.repository.AuthRepository
 import com.openclassrooms.rebonnte.domain.repository.MedicineRepository
+import com.openclassrooms.rebonnte.data.repository.UserRepositoryImpl
+import com.openclassrooms.rebonnte.domain.repository.UserRepository
+import com.openclassrooms.rebonnte.domain.usecase.UploadProfilePictureUseCase
 import com.openclassrooms.rebonnte.ui.aisle.AisleViewModel
 import com.openclassrooms.rebonnte.ui.screens.login.LoginViewModel
 import com.openclassrooms.rebonnte.ui.medicine.MedicineViewModel
-import org.koin.androidx.viewmodel.dsl.viewModel
+import org.koin.androidx.viewmodel.dsl.viewModelOf
+import org.koin.core.module.dsl.factoryOf
+import org.koin.core.module.dsl.singleOf
+import org.koin.core.module.dsl.bind
 import org.koin.dsl.module
 
 val appModule = module {
-    single<AisleRepository> { AisleRepositoryImpl() }
-    single<MedicineRepository> { MedicineRepositoryImpl(get()) }
-    single<AuthRepository> { AuthRepositoryImpl() }
+    singleOf(::AisleRepositoryImpl) { bind<AisleRepository>() }
+    singleOf(::MedicineRepositoryImpl) { bind<MedicineRepository>() }
+    singleOf(::AuthRepositoryImpl) { bind<AuthRepository>() }
+    singleOf(::UserRepositoryImpl) { bind<UserRepository>() }
+    factoryOf(::UploadProfilePictureUseCase)
 
-    viewModel { AisleViewModel(get()) }
-    viewModel { MedicineViewModel(get()) }
-    viewModel { LoginViewModel(get()) }
+    viewModelOf(::AisleViewModel)
+    viewModelOf(::MedicineViewModel)
+    viewModelOf(::LoginViewModel)
 }

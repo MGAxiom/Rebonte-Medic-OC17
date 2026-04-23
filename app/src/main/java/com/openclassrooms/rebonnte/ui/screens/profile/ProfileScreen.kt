@@ -1,6 +1,10 @@
 package com.openclassrooms.rebonnte.ui.screens.profile
 
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -23,6 +27,10 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -30,6 +38,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
@@ -50,20 +59,40 @@ fun ProfileScreen(
     viewModel: LoginViewModel
 ) {
     val user by viewModel.user.collectAsState()
+    val isLoading by viewModel.profileLoading.collectAsState()
+    val error by viewModel.profileError.collectAsState()
     var name by remember(user?.name) { mutableStateOf(user?.name ?: "") }
+    val snackbarHostState = remember { SnackbarHostState() }
+
+    LaunchedEffect(error) {
+        error?.let {
+            snackbarHostState.showSnackbar(it)
+            viewModel.clearProfileError()
+        }
+    }
+
+    val photoPickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.PickVisualMedia(),
+        onResult = { uri ->
+            uri?.let { viewModel.uploadProfilePicture(it) }
+        }
+    )
 
     ProfileScreenContent(
         name = name,
-        onNameChange = {
-            name = it
-            if (it.isNotBlank() && it != user?.name) {
-                viewModel.updateDisplayName(it)
-            }
-        },
+        onNameChange = { name = it },
+        onSaveName = { viewModel.updateDisplayName(name) },
+        initialName = user?.name ?: "",
         email = user?.email ?: "",
         photoUrl = user?.photoUrl,
+        isLoading = isLoading,
+        snackbarHostState = snackbarHostState,
         onSignOutClick = { viewModel.signOut() },
-        onAddImageClick = { /* TODO: Implement image picker */ }
+        onAddImageClick = {
+            photoPickerLauncher.launch(
+                PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+            )
+        }
     )
 }
 
@@ -71,56 +100,88 @@ fun ProfileScreen(
 private fun ProfileScreenContent(
     name: String,
     onNameChange: (String) -> Unit,
+    onSaveName: () -> Unit,
+    initialName: String,
     email: String,
     photoUrl: String?,
+    isLoading: Boolean,
+    snackbarHostState: SnackbarHostState,
     onSignOutClick: () -> Unit,
     onAddImageClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Column(
-        modifier = modifier
-            .fillMaxSize()
-            .padding(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically
+    Box(modifier = modifier.fillMaxSize()) {
+        val isNameChanged = name != initialName && name.isNotBlank()
+
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp)
+                .alpha(if (isLoading) 0.5f else 1f),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            UserProfilePicture(
-                imageUrl = photoUrl,
-                onAddImageClick = onAddImageClick
-            )
-            Spacer(modifier = Modifier.width(16.dp))
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                UserProfilePicture(
+                    imageUrl = photoUrl,
+                    onAddImageClick = if (isLoading) ({}) else onAddImageClick
+                )
+                Spacer(modifier = Modifier.width(16.dp))
+                Column(modifier = Modifier.weight(1f)) {
+                    OutlinedTextField(
+                        value = name,
+                        onValueChange = onNameChange,
+                        label = { Text(stringResource(R.string.name_label)) },
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(12.dp),
+                        enabled = !isLoading
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
             OutlinedTextField(
-                value = name,
-                onValueChange = onNameChange,
-                label = { Text(stringResource(R.string.name_label)) },
-                modifier = Modifier.weight(1f),
+                value = email,
+                onValueChange = {},
+                label = { Text(stringResource(R.string.email_label)) },
+                modifier = Modifier.fillMaxWidth(),
+                readOnly = true,
+                enabled = false,
                 shape = RoundedCornerShape(12.dp)
             )
+
+            Button(
+                onClick = onSaveName,
+                modifier = Modifier.padding(top = 20.dp),
+                enabled = !isLoading && isNameChanged
+            ) {
+                Text("Save changes")
+            }
+
+            Spacer(modifier = Modifier.weight(1f))
+
+            Button(
+                onClick = onSignOutClick,
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(12.dp),
+                enabled = !isLoading
+            ) {
+                Text(text = stringResource(R.string.sign_out))
+            }
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
-
-        OutlinedTextField(
-            value = email,
-            onValueChange = {},
-            label = { Text(stringResource(R.string.email_label)) },
-            modifier = Modifier.fillMaxWidth(),
-            readOnly = true,
-            shape = RoundedCornerShape(12.dp)
+        if (isLoading) {
+            CircularProgressIndicator(
+                modifier = Modifier.align(Alignment.Center)
+            )
+        }
+        SnackbarHost(
+            hostState = snackbarHostState,
+            modifier = Modifier.align(Alignment.BottomCenter)
         )
-
-        Spacer(modifier = Modifier.weight(1f))
-
-        Button(
-            onClick = onSignOutClick,
-            modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(12.dp)
-        ) {
-            Text(text = stringResource(R.string.sign_out))
-        }
     }
 }
 
@@ -130,7 +191,6 @@ private fun UserProfilePicture(
     onAddImageClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val context = LocalContext.current
     Box(
         modifier = modifier
             .size(80.dp)
@@ -144,30 +204,29 @@ private fun UserProfilePicture(
                         MaterialTheme.colorScheme.secondary
                     )
                 )
-            ),
+            )
+            .clickable { onAddImageClick() },
         contentAlignment = Alignment.Center
     ) {
-        if (imageUrl != null) {
+        if (!imageUrl.isNullOrBlank()) {
             AsyncImage(
-                model = imageUrl,
+                model = ImageRequest.Builder(LocalContext.current)
+                    .data(imageUrl)
+                    .crossfade(true)
+                    .build(),
                 placeholder = rememberVectorPainter(Icons.Default.Person),
                 error = rememberVectorPainter(Icons.Default.Person),
-                contentDescription = "Profile Picture",
+                contentDescription = stringResource(R.string.profile_picture_description),
                 modifier = Modifier.fillMaxSize(),
                 contentScale = ContentScale.Crop
             )
         } else {
-            IconButton(
-                onClick = onAddImageClick,
-                modifier = Modifier.fillMaxSize()
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Add,
-                    contentDescription = null,
-                    modifier = Modifier.size(40.dp),
-                    tint = MaterialTheme.colorScheme.primary
-                )
-            }
+            Icon(
+                imageVector = Icons.Default.Add,
+                contentDescription = stringResource(R.string.add_image_description),
+                modifier = Modifier.size(40.dp),
+                tint = MaterialTheme.colorScheme.primary
+            )
         }
     }
 }
@@ -179,8 +238,12 @@ private fun ProfileScreenPreview() {
         ProfileScreenContent(
             name = "John Doe",
             onNameChange = {},
+            onSaveName = {},
+            initialName = "John Doe",
             email = "john.doe@example.com",
             photoUrl = null,
+            isLoading = false,
+            snackbarHostState = remember { SnackbarHostState() },
             onSignOutClick = {},
             onAddImageClick = {}
         )

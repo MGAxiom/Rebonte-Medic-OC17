@@ -1,14 +1,17 @@
 package com.openclassrooms.rebonnte.ui.screens.login
 
 import android.content.Context
+import android.net.Uri
 import androidx.credentials.CredentialManager
 import androidx.credentials.GetCredentialRequest
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.android.libraries.identity.googleid.GetGoogleIdOption
+import com.google.firebase.auth.FirebaseUser
 import com.openclassrooms.rebonnte.R
 import com.openclassrooms.rebonnte.domain.model.User
 import com.openclassrooms.rebonnte.domain.repository.AuthRepository
+import com.openclassrooms.rebonnte.domain.usecase.UploadProfilePictureUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -16,42 +19,32 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
-import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.debounce
-import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.filter
+class LoginViewModel(
+    private val authRepository: AuthRepository,
+    private val uploadProfilePictureUseCase: UploadProfilePictureUseCase
+) : ViewModel() {
 
-@OptIn(FlowPreview::class)
-class LoginViewModel(private val authRepository: AuthRepository) : ViewModel() {
-    private val _displayNameRequest = MutableStateFlow<String?>(null)
+    private val _loginState = MutableStateFlow<LoginState>(LoginState.Idle)
+    val loginState: StateFlow<LoginState> = _loginState
+
+    private val _profileLoading = MutableStateFlow(false)
+    val profileLoading: StateFlow<Boolean> = _profileLoading
+
+    private val _profileError = MutableStateFlow<String?>(null)
+    val profileError: StateFlow<String?> = _profileError
 
     val user: StateFlow<User?> = authRepository.currentUser
         .map { firebaseUser ->
             firebaseUser?.let {
+                val photoUrl = it.photoUrl ?: it.providerData.firstOrNull { p -> p.photoUrl != null }?.photoUrl
                 User(
                     id = it.uid,
                     name = it.displayName ?: "",
                     email = it.email ?: "",
-                    photoUrl = it.photoUrl?.toString()?.takeIf { url -> url.isNotBlank() }
+                    photoUrl = photoUrl?.toString()?.takeIf { url -> url.isNotBlank() }
                 )
             }
         }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
-
-    init {
-        viewModelScope.launch {
-            _displayNameRequest
-                .debounce(500L)
-                .filter { it != null && it != user.value?.name }
-                .distinctUntilChanged()
-                .collectLatest { name ->
-                    name?.let { authRepository.updateDisplayName(it) }
-                }
-        }
-    }
-
-    private val _loginState = MutableStateFlow<LoginState>(LoginState.Idle)
-    val loginState: StateFlow<LoginState> = _loginState
 
     fun onSignInResult(idToken: String) {
         viewModelScope.launch {
@@ -103,14 +96,75 @@ class LoginViewModel(private val authRepository: AuthRepository) : ViewModel() {
         }
     }
 
+    fun signInWithEmail(email: String, password: String) {
+        viewModelScope.launch {
+            _loginState.value = LoginState.Loading
+            val result = authRepository.signInWithEmail(email, password)
+            handleAuthResult(result)
+        }
+    }
+
+    fun signUpWithEmail(email: String, password: String, name: String) {
+        viewModelScope.launch {
+            _loginState.value = LoginState.Loading
+            val result = authRepository.signUpWithEmail(email, password, name)
+            handleAuthResult(result)
+        }
+    }
+
+    private fun handleAuthResult(result: Result<FirebaseUser?>) {
+        val firebaseUser = result.getOrNull()
+        if (result.isSuccess && firebaseUser != null) {
+            _loginState.value = LoginState.Success(
+                User(
+                    id = firebaseUser.uid,
+                    name = firebaseUser.displayName ?: "",
+                    email = firebaseUser.email ?: "",
+                    photoUrl = firebaseUser.photoUrl?.toString()?.takeIf { url -> url.isNotBlank() }
+                )
+            )
+        } else {
+            _loginState.value =
+                LoginState.Error(result.exceptionOrNull()?.message ?: "Unknown error")
+        }
+    }
+
     fun updateDisplayName(name: String) {
-        _displayNameRequest.value = name
+        viewModelScope.launch {
+            _profileLoading.value = true
+            _profileError.value = null
+            val result = authRepository.updateDisplayName(name)
+            if (result.isSuccess) {
+                authRepository.refreshUser()
+            } else {
+                _profileError.value = result.exceptionOrNull()?.message ?: "Failed to update name"
+            }
+            _profileLoading.value = false
+        }
     }
 
     fun signOut() {
         viewModelScope.launch {
             authRepository.signOut()
         }
+    }
+
+    fun uploadProfilePicture(uri: Uri) {
+        viewModelScope.launch {
+            _profileLoading.value = true
+            _profileError.value = null
+            val result = uploadProfilePictureUseCase(uri)
+            if (result.isSuccess) {
+                authRepository.refreshUser()
+            } else {
+                _profileError.value = result.exceptionOrNull()?.message ?: "Failed to upload image"
+            }
+            _profileLoading.value = false
+        }
+    }
+
+    fun clearProfileError() {
+        _profileError.value = null
     }
 }
 

@@ -16,6 +16,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -32,6 +35,7 @@ fun LoginScreen(
     val context = LocalContext.current
     val loginState by viewModel.loginState.collectAsState()
     val user by viewModel.user.collectAsState()
+    var showEmailDialog by remember { mutableStateOf(false) }
 
     LaunchedEffect(loginState) {
         if (loginState is LoginState.Success) {
@@ -41,10 +45,25 @@ fun LoginScreen(
         }
     }
 
+    if (showEmailDialog) {
+        EmailLoginDialog(
+            onDismiss = { showEmailDialog = false },
+            onConfirm = { email, password, name ->
+                showEmailDialog = false
+                if (name != null) {
+                    viewModel.signUpWithEmail(email, password, name)
+                } else {
+                    viewModel.signInWithEmail(email, password)
+                }
+            }
+        )
+    }
+
     LoginScreenContent(
         loginState = loginState,
         user = user,
-        onGoogleLoginClick = { viewModel.signInWithGoogle(context) }
+        onGoogleLoginClick = { viewModel.signInWithGoogle(context) },
+        onEmailLoginClick = { showEmailDialog = true }
     )
 }
 
@@ -53,6 +72,7 @@ private fun LoginScreenContent(
     loginState: LoginState,
     user: User?,
     onGoogleLoginClick: () -> Unit,
+    onEmailLoginClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -79,7 +99,7 @@ private fun LoginScreenContent(
         } else {
             LoginScreenButtons(
                 onGoogleLoginClick = onGoogleLoginClick,
-                onEmailLoginClick = {}
+                onEmailLoginClick = onEmailLoginClick
             )
         }
     }
@@ -115,7 +135,8 @@ private fun LoginScreenPreview() {
         LoginScreenContent(
             loginState = LoginState.Idle,
             user = null,
-            onGoogleLoginClick = {}
+            onGoogleLoginClick = {},
+            onEmailLoginClick = {}
         )
     }
 }

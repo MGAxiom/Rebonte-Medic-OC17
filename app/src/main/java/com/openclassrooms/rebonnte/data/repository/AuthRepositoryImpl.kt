@@ -31,6 +31,35 @@ class AuthRepositoryImpl : AuthRepository {
         }
     }
 
+    override suspend fun signInWithEmail(email: String, password: String): Result<FirebaseUser?> {
+        return try {
+            val result = auth.signInWithEmailAndPassword(email, password).await()
+            val firebaseUser = result.user
+            _currentUser.value = firebaseUser
+            Result.success(firebaseUser)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    override suspend fun signUpWithEmail(email: String, password: String, name: String): Result<FirebaseUser?> {
+        return try {
+            val result = auth.createUserWithEmailAndPassword(email, password).await()
+            val firebaseUser = result.user
+            
+            val profileUpdates = com.google.firebase.auth.userProfileChangeRequest {
+                displayName = name
+            }
+            firebaseUser?.updateProfile(profileUpdates)?.await()
+            
+            refreshUser()
+
+            Result.success(auth.currentUser)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
     override suspend fun updateDisplayName(name: String): Result<Unit> {
         return try {
             val user = auth.currentUser
@@ -38,7 +67,20 @@ class AuthRepositoryImpl : AuthRepository {
                 displayName = name
             }
             user?.updateProfile(profileUpdates)?.await()
-            _currentUser.value = auth.currentUser
+            refreshUser()
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    override suspend fun refreshUser(): Result<Unit> {
+        return try {
+            auth.currentUser?.reload()?.await()
+            // Force StateFlow emission by setting to null first then back to the user
+            val updatedUser = auth.currentUser
+            _currentUser.value = null
+            _currentUser.value = updatedUser
             Result.success(Unit)
         } catch (e: Exception) {
             Result.failure(e)
