@@ -4,18 +4,16 @@ import android.content.Context
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.snapshots
 import com.openclassrooms.rebonnte.R
 import com.openclassrooms.rebonnte.domain.model.History
 import com.openclassrooms.rebonnte.domain.model.Medicine
+import com.openclassrooms.rebonnte.domain.model.SortType
 import com.openclassrooms.rebonnte.domain.repository.MedicineRepository
 import com.openclassrooms.rebonnte.utils.DateFormatter
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.stateIn
 import java.util.UUID
 
 class MedicineRepositoryImpl(
@@ -23,19 +21,32 @@ class MedicineRepositoryImpl(
     private val firestore: FirebaseFirestore
 ) : MedicineRepository {
 
-    private val scope = CoroutineScope(Dispatchers.IO)
     private val medicineCollection = firestore.collection("medicines")
 
-    override val medicines: StateFlow<List<Medicine>> = medicineCollection
-        .snapshots()
-        .map { snapshot ->
+    override fun getMedicines(sortType: SortType, searchQuery: String): Flow<List<Medicine>> {
+        var query: Query = medicineCollection
+
+        if (searchQuery.isNotEmpty()) {
+            query = query.whereGreaterThanOrEqualTo("name", searchQuery)
+                .whereLessThanOrEqualTo("name", searchQuery + "\uf8ff")
+        }
+
+        query = when (sortType) {
+            SortType.NAME -> query.orderBy(NAME_SORTING)
+            SortType.STOCK -> query.orderBy(STOCK_SORTING)
+            SortType.NONE -> {
+                if (searchQuery.isNotEmpty()) {
+                    query.orderBy(NAME_SORTING)
+                } else {
+                    query
+                }
+            }
+        }
+
+        return query.snapshots().map { snapshot ->
             snapshot.toObjects(Medicine::class.java)
         }
-        .stateIn(
-            scope = scope,
-            started = SharingStarted.WhileSubscribed(5000),
-            initialValue = emptyList()
-        )
+    }
 
     override fun addMedicine(medicine: Medicine) {
         val docRef = medicineCollection.document()
@@ -78,3 +89,6 @@ class MedicineRepositoryImpl(
         }
     }
 }
+
+private const val STOCK_SORTING = "stock"
+private const val NAME_SORTING = "name"

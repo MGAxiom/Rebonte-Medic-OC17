@@ -4,14 +4,17 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.openclassrooms.rebonnte.domain.model.Medicine
+import com.openclassrooms.rebonnte.domain.model.SortType
 import com.openclassrooms.rebonnte.domain.usecase.AddMedicineUseCase
 import com.openclassrooms.rebonnte.domain.usecase.GetMedicinesUseCase
 import com.openclassrooms.rebonnte.domain.usecase.RemoveMedicineUseCase
 import com.openclassrooms.rebonnte.domain.usecase.UpdateMedicineStockUseCase
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.stateIn
 
 class MedicineViewModel(
@@ -26,23 +29,14 @@ class MedicineViewModel(
 
     val detailListState = LazyListState()
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     val medicines: StateFlow<List<Medicine>> = combine(
-        getMedicinesUseCase(),
         _searchQuery,
         _sortType
-    ) { medicines, query, sortType ->
-        var filtered = if (query.isEmpty()) {
-            medicines
-        } else {
-            medicines.filter { it.name.contains(query, ignoreCase = true) }
-        }
-
-        when (sortType) {
-            SortType.NAME -> filtered = filtered.sortedBy { it.name }
-            SortType.STOCK -> filtered = filtered.sortedBy { it.stock }
-            SortType.NONE -> { /* keep as is */ }
-        }
-        filtered
+    ) { query, sortType ->
+        Pair(query, sortType)
+    }.flatMapLatest { (query, sortType) ->
+        getMedicinesUseCase(sortType, query)
     }.stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
 
     fun addMedicine(medicine: Medicine) {
@@ -71,10 +65,5 @@ class MedicineViewModel(
 
     fun removeMedicine(medicineName: String) {
         removeMedicineUseCase(medicineName)
-    }
-
-
-    enum class SortType {
-        NONE, NAME, STOCK
     }
 }
