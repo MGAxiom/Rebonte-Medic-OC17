@@ -10,8 +10,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.openclassrooms.rebonnte.domain.model.Medicine
 import com.openclassrooms.rebonnte.ui.components.SwipeableItem
+import com.openclassrooms.rebonnte.ui.state.MedicineUiState
 import com.openclassrooms.rebonnte.ui.screens.medicine.MedicineViewModel
 import com.openclassrooms.rebonnte.ui.theme.RebonnteTheme
+
+import androidx.compose.foundation.layout.Box
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.ui.Alignment
 
 @Composable
 fun AisleDetailScreen(
@@ -20,15 +27,31 @@ fun AisleDetailScreen(
     modifier: Modifier = Modifier,
     onMedicineClick: (String) -> Unit
 ) {
-    val medicines by viewModel.medicines.collectAsState()
-    val filteredMedicines = medicines.filter { it.nameAisle == name }
+    val uiState by viewModel.uiState.collectAsState()
 
-    AisleDetailScreenContent(
-        medicines = filteredMedicines,
-        onMedicineClick = onMedicineClick,
-        onDeleteMedicine = { viewModel.removeMedicine(it) },
-        modifier = modifier
-    )
+    Box(modifier = modifier.fillMaxSize()) {
+        when (val state = uiState) {
+            is MedicineUiState.Loading -> {
+                CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+            }
+            is MedicineUiState.Success -> {
+                val filteredMedicines = state.medicines.filter { it.nameAisle == name }
+                AisleDetailScreenContent(
+                    medicines = filteredMedicines,
+                    onMedicineClick = onMedicineClick,
+                    onDeleteMedicine = { viewModel.removeMedicine(it) },
+                    modifier = Modifier
+                )
+            }
+            is MedicineUiState.Error -> {
+                Text(
+                    text = state.message,
+                    color = MaterialTheme.colorScheme.error,
+                    modifier = Modifier.align(Alignment.Center)
+                )
+            }
+        }
+    }
 }
 
 @Composable

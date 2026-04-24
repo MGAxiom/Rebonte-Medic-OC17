@@ -1,9 +1,9 @@
 package com.openclassrooms.rebonnte.domain.repository
 
 import com.openclassrooms.rebonnte.domain.model.Aisle
-import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.Flow
 
 interface AisleRepository {
-    val aisles: StateFlow<List<Aisle>>
-    fun addRandomAisle()
+    val aisles: Flow<Result<List<Aisle>>>
+    suspend fun addRandomAisle(): Result<Unit>
 }

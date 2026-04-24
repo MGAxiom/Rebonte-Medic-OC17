@@ -29,14 +29,16 @@ import androidx.compose.ui.res.stringResource
 import androidx.navigation3.runtime.NavEntry
 import androidx.navigation3.ui.NavDisplay
 import com.openclassrooms.rebonnte.R
-import com.openclassrooms.rebonnte.ui.aisle.AisleDetailScreen
-import com.openclassrooms.rebonnte.ui.aisle.AisleScreen
-import com.openclassrooms.rebonnte.ui.aisle.AisleViewModel
+import com.openclassrooms.rebonnte.ui.screens.aisle.AisleDetailScreen
+import com.openclassrooms.rebonnte.ui.screens.aisle.AisleScreen
+import com.openclassrooms.rebonnte.ui.screens.aisle.AisleViewModel
+import com.openclassrooms.rebonnte.ui.state.AisleUiState
+import com.openclassrooms.rebonnte.ui.state.MedicineUiState
 import com.openclassrooms.rebonnte.ui.screens.login.LoginViewModel
-import com.openclassrooms.rebonnte.ui.medicine.MedicineAddScreen
-import com.openclassrooms.rebonnte.ui.medicine.MedicineDetailScreen
-import com.openclassrooms.rebonnte.ui.medicine.MedicineScreen
-import com.openclassrooms.rebonnte.ui.medicine.MedicineViewModel
+import com.openclassrooms.rebonnte.ui.screens.medicine.MedicineAddScreen
+import com.openclassrooms.rebonnte.ui.screens.medicine.MedicineDetailScreen
+import com.openclassrooms.rebonnte.ui.screens.medicine.MedicineScreen
+import com.openclassrooms.rebonnte.ui.screens.medicine.MedicineViewModel
 import com.openclassrooms.rebonnte.ui.navigation.Screens
 import com.openclassrooms.rebonnte.ui.screens.profile.ProfileScreen
 import kotlinx.coroutines.launch
@@ -50,7 +52,8 @@ fun MainScreen(
 ) {
     val backStack = remember { mutableStateListOf<Any>(Screens.Aisle) }
     val currentDestination = backStack.lastOrNull()
-    val aisles by aisleViewModel.aisles.collectAsStateWithLifecycle()
+    val uiState by aisleViewModel.uiState.collectAsStateWithLifecycle()
+    val aisles = (uiState as? AisleUiState.Success)?.aisles ?: emptyList()
     val scope = rememberCoroutineScope()
 
     var isSearchActive by rememberSaveable { mutableStateOf(false) }

@@ -37,4 +37,13 @@
     <string name="profile_picture_description">Profile Picture</string>
     <string name="add_image_description">Add Image</string>
     <string name="cancel">Cancel</string>
+    <string name="error_unknown">An unknown error occurred.</string>
+    <string name="error_network">Please check your internet connection.</string>
+    <string name="error_invalid_credentials">Invalid email or password.</string>
+    <string name="error_permission_denied">You don\'t have permission to perform this action.</string>
+    <string name="error_medicine_add_failed">Failed to add medicine.</string>
+    <string name="error_medicine_update_failed">Failed to update stock.</string>
+    <string name="error_medicine_remove_failed">Failed to remove medicine.</string>
+    <string name="error_aisle_fetch_failed">Failed to fetch aisles.</string>
+    <string name="error_medicine_fetch_failed">Failed to fetch medicines.</string>
 </resources>

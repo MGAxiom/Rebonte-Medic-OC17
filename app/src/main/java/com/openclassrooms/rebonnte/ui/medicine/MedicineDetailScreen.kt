@@ -1,5 +1,6 @@
 package com.openclassrooms.rebonnte.ui.medicine
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -14,6 +15,7 @@ import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -27,73 +29,97 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.openclassrooms.rebonnte.domain.model.History
+import com.openclassrooms.rebonnte.ui.state.MedicineUiState
 
 @Composable
 fun MedicineDetailScreen(name: String, viewModel: MedicineViewModel) {
-    val medicines by viewModel.medicines.collectAsStateWithLifecycle()
-    val medicine = medicines.find { it.name == name } ?: return
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
-    LazyColumn(
-        state = viewModel.detailListState,
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(horizontal = 16.dp)
-    ) {
-        item {
-            Spacer(modifier = Modifier.height(16.dp))
-            TextField(
-                value = medicine.name,
-                onValueChange = {},
-                label = { Text("Name") },
-                enabled = false,
-                modifier = Modifier.fillMaxWidth()
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-            TextField(
-                value = medicine.nameAisle,
-                onValueChange = {},
-                label = { Text("Aisle") },
-                enabled = false,
-                modifier = Modifier.fillMaxWidth()
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                IconButton(onClick = {
-                    viewModel.updateStock(medicine.name, increment = false)
-                }) {
-                    Icon(
-                        imageVector = Icons.Filled.KeyboardArrowDown,
-                        contentDescription = "Minus One"
-                    )
-                }
-                TextField(
-                    value = medicine.stock.toString(),
-                    onValueChange = {},
-                    label = { Text("Stock") },
-                    enabled = false,
-                    modifier = Modifier.weight(1f)
-                )
-                IconButton(onClick = {
-                    viewModel.updateStock(medicine.name, increment = true)
-                }) {
-                    Icon(
-                        imageVector = Icons.Default.KeyboardArrowUp,
-                        contentDescription = "Plus One"
+    Box(modifier = Modifier.fillMaxSize()) {
+        when (val state = uiState) {
+            is MedicineUiState.Loading -> {
+                CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+            }
+            is MedicineUiState.Success -> {
+                val medicine = state.medicines.find { it.name == name }
+                if (medicine != null) {
+                    LazyColumn(
+                        state = viewModel.detailListState,
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(horizontal = 16.dp)
+                    ) {
+                        item {
+                            Spacer(modifier = Modifier.height(16.dp))
+                            TextField(
+                                value = medicine.name,
+                                onValueChange = {},
+                                label = { Text("Name") },
+                                enabled = false,
+                                modifier = Modifier.fillMaxWidth()
+                            )
+                            Spacer(modifier = Modifier.height(8.dp))
+                            TextField(
+                                value = medicine.nameAisle,
+                                onValueChange = {},
+                                label = { Text("Aisle") },
+                                enabled = false,
+                                modifier = Modifier.fillMaxWidth()
+                            )
+                            Spacer(modifier = Modifier.height(8.dp))
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                IconButton(onClick = {
+                                    viewModel.updateStock(medicine.name, increment = false)
+                                }) {
+                                    Icon(
+                                        imageVector = Icons.Filled.KeyboardArrowDown,
+                                        contentDescription = "Minus One"
+                                    )
+                                }
+                                TextField(
+                                    value = medicine.stock.toString(),
+                                    onValueChange = {},
+                                    label = { Text("Stock") },
+                                    enabled = false,
+                                    modifier = Modifier.weight(1f)
+                                )
+                                IconButton(onClick = {
+                                    viewModel.updateStock(medicine.name, increment = true)
+                                }) {
+                                    Icon(
+                                        imageVector = Icons.Default.KeyboardArrowUp,
+                                        contentDescription = "Plus One"
+                                    )
+                                }
+                            }
+                            Spacer(modifier = Modifier.height(16.dp))
+                            Text(text = "History", style = MaterialTheme.typography.titleLarge)
+                            Spacer(modifier = Modifier.height(8.dp))
+                        }
+                        items(medicine.histories, key = { it.id }) { history ->
+                            HistoryItem(history = history)
+                        }
+                        item {
+                            Spacer(modifier = Modifier.height(16.dp))
+                        }
+                    }
+                } else {
+                    Text(
+                        text = "Medicine not found",
+                        modifier = Modifier.align(Alignment.Center)
                     )
                 }
             }
-            Spacer(modifier = Modifier.height(16.dp))
-            Text(text = "History", style = MaterialTheme.typography.titleLarge)
-            Spacer(modifier = Modifier.height(8.dp))
-        }
-        items(medicine.histories, key = { it.id }) { history ->
-            HistoryItem(history = history)
-        }
-        item {
-            Spacer(modifier = Modifier.height(16.dp))
+            is MedicineUiState.Error -> {
+                Text(
+                    text = state.message,
+                    color = MaterialTheme.colorScheme.error,
+                    modifier = Modifier.align(Alignment.Center)
+                )
+            }
         }
     }
 }

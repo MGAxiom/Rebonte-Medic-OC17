@@ -25,6 +25,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.openclassrooms.rebonnte.domain.model.User
+import com.openclassrooms.rebonnte.ui.state.LoginUiState
 import com.openclassrooms.rebonnte.ui.theme.RebonnteTheme
 
 @Composable
@@ -38,10 +39,10 @@ fun LoginScreen(
     var showEmailDialog by remember { mutableStateOf(false) }
 
     LaunchedEffect(loginState) {
-        if (loginState is LoginState.Success) {
+        if (loginState is LoginUiState.Success) {
             onLoginSuccess()
-        } else if (loginState is LoginState.Error) {
-            Toast.makeText(context, (loginState as LoginState.Error).message, Toast.LENGTH_LONG).show()
+        } else if (loginState is LoginUiState.Error) {
+            Toast.makeText(context, (loginState as LoginUiState.Error).message, Toast.LENGTH_LONG).show()
         }
     }
 
@@ -69,7 +70,7 @@ fun LoginScreen(
 
 @Composable
 private fun LoginScreenContent(
-    loginState: LoginState,
+    loginState: LoginUiState,
     user: User?,
     onGoogleLoginClick: () -> Unit,
     onEmailLoginClick: () -> Unit,
@@ -94,7 +95,7 @@ private fun LoginScreenContent(
 
         Spacer(modifier = Modifier.height(32.dp))
 
-        if (loginState is LoginState.Loading) {
+        if (loginState is LoginUiState.Loading) {
             CircularProgressIndicator()
         } else {
             LoginScreenButtons(
@@ -133,7 +134,7 @@ private fun LoginScreenButtons(
 private fun LoginScreenPreview() {
     RebonnteTheme {
         LoginScreenContent(
-            loginState = LoginState.Idle,
+            loginState = LoginUiState.Idle,
             user = null,
             onGoogleLoginClick = {},
             onEmailLoginClick = {}

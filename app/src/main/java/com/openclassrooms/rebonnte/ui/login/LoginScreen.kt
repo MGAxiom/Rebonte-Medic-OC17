@@ -24,6 +24,7 @@ import androidx.credentials.CredentialManager
 import androidx.credentials.GetCredentialRequest
 import com.google.android.libraries.identity.googleid.GetGoogleIdOption
 import com.openclassrooms.rebonnte.R
+import com.openclassrooms.rebonnte.ui.state.LoginUiState
 import kotlinx.coroutines.launch
 
 @Composable
@@ -37,10 +38,10 @@ fun LoginScreen(
     val credentialManager = CredentialManager.create(context)
 
     LaunchedEffect(loginState) {
-        if (loginState is LoginState.Success) {
+        if (loginState is LoginUiState.Success) {
             onLoginSuccess()
-        } else if (loginState is LoginState.Error) {
-            Toast.makeText(context, (loginState as LoginState.Error).message, Toast.LENGTH_LONG).show()
+        } else if (loginState is LoginUiState.Error) {
+            Toast.makeText(context, (loginState as LoginUiState.Error).message, Toast.LENGTH_LONG).show()
         }
     }
 
@@ -54,7 +55,7 @@ fun LoginScreen(
         Text(text = "Welcome to Rebonnte", style = MaterialTheme.typography.headlineMedium)
         Spacer(modifier = Modifier.height(32.dp))
 
-        if (loginState is LoginState.Loading) {
+        if (loginState is LoginUiState.Loading) {
             CircularProgressIndicator()
         } else {
             Button(onClick = {

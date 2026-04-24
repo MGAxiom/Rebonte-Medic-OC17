@@ -6,6 +6,6 @@ import com.openclassrooms.rebonnte.domain.repository.MedicineRepository
 import kotlinx.coroutines.flow.Flow
 
 class GetMedicinesUseCase(private val repository: MedicineRepository) {
-    operator fun invoke(sortType: SortType = SortType.NONE, query: String = ""): Flow<List<Medicine>> = 
+    operator fun invoke(sortType: SortType = SortType.NONE, query: String = ""): Flow<Result<List<Medicine>>> =
         repository.getMedicines(sortType, query)
 }

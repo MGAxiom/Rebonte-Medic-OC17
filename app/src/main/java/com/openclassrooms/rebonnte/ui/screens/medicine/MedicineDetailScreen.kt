@@ -30,12 +30,13 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.openclassrooms.rebonnte.domain.model.History
 import com.openclassrooms.rebonnte.domain.model.Medicine
+import com.openclassrooms.rebonnte.ui.state.MedicineUiState
 import com.openclassrooms.rebonnte.ui.theme.RebonnteTheme
 
 @Composable
 fun MedicineDetailScreen(name: String, viewModel: MedicineViewModel) {
-    val medicines by viewModel.medicines.collectAsState()
-    val medicine = medicines.find { it.name == name } ?: return
+    val uiState by viewModel.uiState.collectAsState()
+    val medicine = (uiState as? MedicineUiState.Success)?.medicines?.find { it.name == name } ?: return
 
     MedicineDetailScreenContent(
         medicine = medicine,

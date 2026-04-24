@@ -12,6 +12,7 @@ import com.openclassrooms.rebonnte.R
 import com.openclassrooms.rebonnte.domain.model.User
 import com.openclassrooms.rebonnte.domain.repository.AuthRepository
 import com.openclassrooms.rebonnte.domain.usecase.UploadProfilePictureUseCase
+import com.openclassrooms.rebonnte.ui.state.LoginUiState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -24,8 +25,8 @@ class LoginViewModel(
     private val uploadProfilePictureUseCase: UploadProfilePictureUseCase
 ) : ViewModel() {
 
-    private val _loginState = MutableStateFlow<LoginState>(LoginState.Idle)
-    val loginState: StateFlow<LoginState> = _loginState
+    private val _loginState = MutableStateFlow<LoginUiState>(LoginUiState.Idle)
+    val loginState: StateFlow<LoginUiState> = _loginState
 
     private val _profileLoading = MutableStateFlow(false)
     val profileLoading: StateFlow<Boolean> = _profileLoading
@@ -48,11 +49,11 @@ class LoginViewModel(
 
     fun onSignInResult(idToken: String) {
         viewModelScope.launch {
-            _loginState.value = LoginState.Loading
+            _loginState.value = LoginUiState.Loading
             val result = authRepository.signInWithGoogle(idToken)
             val firebaseUser = result.getOrNull()
             if (result.isSuccess && firebaseUser != null) {
-                _loginState.value = LoginState.Success(
+                _loginState.value = LoginUiState.Success(
                     User(
                         id = firebaseUser.uid,
                         name = firebaseUser.displayName ?: "",
@@ -62,7 +63,7 @@ class LoginViewModel(
                 )
             } else {
                 _loginState.value =
-                    LoginState.Error(result.exceptionOrNull()?.message ?: "Unknown error")
+                    LoginUiState.Error(result.exceptionOrNull()?.message ?: "Unknown error")
             }
         }
     }
@@ -91,14 +92,14 @@ class LoginViewModel(
                     onSignInResult(idToken)
                 }
             } catch (e: Exception) {
-                _loginState.value = LoginState.Error("Login failed: ${e.message}")
+                _loginState.value = LoginUiState.Error("Login failed: ${e.message}")
             }
         }
     }
 
     fun signInWithEmail(email: String, password: String) {
         viewModelScope.launch {
-            _loginState.value = LoginState.Loading
+            _loginState.value = LoginUiState.Loading
             val result = authRepository.signInWithEmail(email, password)
             handleAuthResult(result)
         }
@@ -106,7 +107,7 @@ class LoginViewModel(
 
     fun signUpWithEmail(email: String, password: String, name: String) {
         viewModelScope.launch {
-            _loginState.value = LoginState.Loading
+            _loginState.value = LoginUiState.Loading
             val result = authRepository.signUpWithEmail(email, password, name)
             handleAuthResult(result)
         }
@@ -115,7 +116,7 @@ class LoginViewModel(
     private fun handleAuthResult(result: Result<FirebaseUser?>) {
         val firebaseUser = result.getOrNull()
         if (result.isSuccess && firebaseUser != null) {
-            _loginState.value = LoginState.Success(
+            _loginState.value = LoginUiState.Success(
                 User(
                     id = firebaseUser.uid,
                     name = firebaseUser.displayName ?: "",
@@ -125,7 +126,7 @@ class LoginViewModel(
             )
         } else {
             _loginState.value =
-                LoginState.Error(result.exceptionOrNull()?.message ?: "Unknown error")
+                LoginUiState.Error(result.exceptionOrNull()?.message ?: "Unknown error")
         }
     }
 
@@ -166,11 +167,4 @@ class LoginViewModel(
     fun clearProfileError() {
         _profileError.value = null
     }
-}
-
-sealed class LoginState {
-    data object Idle : LoginState()
-    data object Loading : LoginState()
-    data class Success(val user: User) : LoginState()
-    data class Error(val message: String) : LoginState()
 }

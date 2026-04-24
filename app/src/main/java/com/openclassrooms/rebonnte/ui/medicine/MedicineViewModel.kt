@@ -9,13 +9,16 @@ import com.openclassrooms.rebonnte.domain.usecase.AddMedicineUseCase
 import com.openclassrooms.rebonnte.domain.usecase.GetMedicinesUseCase
 import com.openclassrooms.rebonnte.domain.usecase.RemoveMedicineUseCase
 import com.openclassrooms.rebonnte.domain.usecase.UpdateMedicineStockUseCase
+import com.openclassrooms.rebonnte.ui.state.MedicineUiState
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 
 class MedicineViewModel(
     private val getMedicinesUseCase: GetMedicinesUseCase,
@@ -30,40 +33,35 @@ class MedicineViewModel(
     val detailListState = LazyListState()
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    val medicines: StateFlow<List<Medicine>> = combine(
+    val uiState: StateFlow<MedicineUiState> = combine(
         _searchQuery,
         _sortType
     ) { query, sortType ->
         Pair(query, sortType)
     }.flatMapLatest { (query, sortType) ->
-        getMedicinesUseCase(sortType, query)
-    }.stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
+        getMedicinesUseCase(sortType, query).map { result ->
+            result.fold(
+                onSuccess = { MedicineUiState.Success(it) },
+                onFailure = { MedicineUiState.Error(it.message ?: "Unknown error") }
+            )
+        }
+    }.stateIn(viewModelScope, SharingStarted.Lazily, MedicineUiState.Loading)
 
     fun addMedicine(medicine: Medicine) {
-        addMedicineUseCase(medicine)
-    }
-
-    fun filterByName(name: String) {
-        _searchQuery.value = name
-    }
-
-    fun sortByNone() {
-        _sortType.value = SortType.NONE
-    }
-
-    fun sortByName() {
-        _sortType.value = SortType.NAME
-    }
-
-    fun sortByStock() {
-        _sortType.value = SortType.STOCK
+        viewModelScope.launch {
+            addMedicineUseCase(medicine)
+        }
     }
 
     fun updateStock(medicineName: String, increment: Boolean) {
-        updateMedicineStockUseCase(medicineName, increment)
+        viewModelScope.launch {
+            updateMedicineStockUseCase(medicineName, increment)
+        }
     }
 
     fun removeMedicine(medicineName: String) {
-        removeMedicineUseCase(medicineName)
+        viewModelScope.launch {
+            removeMedicineUseCase(medicineName)
+        }
     }
 }

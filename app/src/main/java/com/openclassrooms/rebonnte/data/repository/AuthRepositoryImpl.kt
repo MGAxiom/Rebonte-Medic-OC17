@@ -3,12 +3,13 @@ package com.openclassrooms.rebonnte.data.repository
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.GoogleAuthProvider
+import com.openclassrooms.rebonnte.R
 import com.openclassrooms.rebonnte.domain.repository.AuthRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.tasks.await
 
-class AuthRepositoryImpl : AuthRepository {
+class AuthRepositoryImpl(private val context: android.content.Context) : AuthRepository {
     private val auth = FirebaseAuth.getInstance()
     private val _currentUser = MutableStateFlow(auth.currentUser)
     override val currentUser: StateFlow<FirebaseUser?> = _currentUser
@@ -27,7 +28,7 @@ class AuthRepositoryImpl : AuthRepository {
             _currentUser.value = firebaseUser
             Result.success(firebaseUser)
         } catch (e: Exception) {
-            Result.failure(e)
+            Result.failure(Exception(context.getString(R.string.error_invalid_credentials)))
         }
     }
 
@@ -38,7 +39,7 @@ class AuthRepositoryImpl : AuthRepository {
             _currentUser.value = firebaseUser
             Result.success(firebaseUser)
         } catch (e: Exception) {
-            Result.failure(e)
+            Result.failure(Exception(context.getString(R.string.error_invalid_credentials)))
         }
     }
 
@@ -56,7 +57,7 @@ class AuthRepositoryImpl : AuthRepository {
 
             Result.success(auth.currentUser)
         } catch (e: Exception) {
-            Result.failure(e)
+            Result.failure(Exception(context.getString(R.string.error_unknown)))
         }
     }
 
@@ -70,7 +71,7 @@ class AuthRepositoryImpl : AuthRepository {
             refreshUser()
             Result.success(Unit)
         } catch (e: Exception) {
-            Result.failure(e)
+            Result.failure(Exception(context.getString(R.string.error_unknown)))
         }
     }
 
@@ -83,7 +84,7 @@ class AuthRepositoryImpl : AuthRepository {
             _currentUser.value = updatedUser
             Result.success(Unit)
         } catch (e: Exception) {
-            Result.failure(e)
+            Result.failure(Exception(context.getString(R.string.error_unknown)))
         }
     }
 

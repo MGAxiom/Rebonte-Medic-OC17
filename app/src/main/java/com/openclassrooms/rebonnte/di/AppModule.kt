@@ -16,9 +16,10 @@ import com.openclassrooms.rebonnte.domain.usecase.AddMedicineUseCase
 import com.openclassrooms.rebonnte.domain.usecase.GetMedicinesUseCase
 import com.openclassrooms.rebonnte.domain.usecase.UpdateMedicineStockUseCase
 import com.openclassrooms.rebonnte.domain.usecase.RemoveMedicineUseCase
-import com.openclassrooms.rebonnte.ui.aisle.AisleViewModel
+import com.openclassrooms.rebonnte.ui.screens.aisle.AisleViewModel
 import com.openclassrooms.rebonnte.ui.screens.login.LoginViewModel
-import com.openclassrooms.rebonnte.ui.medicine.MedicineViewModel
+import com.openclassrooms.rebonnte.ui.screens.medicine.MedicineViewModel
+import org.koin.android.ext.koin.androidContext
 import org.koin.androidx.viewmodel.dsl.viewModelOf
 import org.koin.core.module.dsl.factoryOf
 import org.koin.core.module.dsl.singleOf
@@ -28,10 +29,10 @@ import org.koin.dsl.module
 val appModule = module {
     single { FirebaseFirestore.getInstance() }
     
-    singleOf(::AisleRepositoryImpl) { bind<AisleRepository>() }
-    singleOf(::MedicineRepositoryImpl) { bind<MedicineRepository>() }
-    singleOf(::AuthRepositoryImpl) { bind<AuthRepository>() }
-    singleOf(::UserRepositoryImpl) { bind<UserRepository>() }
+    single<AisleRepository> { AisleRepositoryImpl(androidContext(), get()) }
+    single<MedicineRepository> { MedicineRepositoryImpl(androidContext(), get()) }
+    single<AuthRepository> { AuthRepositoryImpl(androidContext()) }
+    single<UserRepository> { UserRepositoryImpl(androidContext()) }
     
     factoryOf(::UploadProfilePictureUseCase)
     factoryOf(::AddAisleUseCase)
