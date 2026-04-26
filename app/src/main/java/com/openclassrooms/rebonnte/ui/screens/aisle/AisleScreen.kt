@@ -42,28 +42,27 @@ fun AisleScreen(
         }
     }
 
-    Scaffold(
-        snackbarHost = { SnackbarHost(snackbarHostState) },
-        modifier = modifier
-    ) { padding ->
-        Box(modifier = Modifier.padding(padding).fillMaxSize()) {
-            when (val state = uiState) {
-                is AisleUiState.Loading -> {
-                    CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
-                }
-                is AisleUiState.Success -> {
-                    AisleScreenContent(
-                        aisles = state.aisles,
-                        onAisleClick = onAisleClick
-                    )
-                }
-                is AisleUiState.Error -> {
-                    Text(
-                        text = state.message,
-                        color = MaterialTheme.colorScheme.error,
-                        modifier = Modifier.align(Alignment.Center)
-                    )
-                }
+    Box(
+        modifier = modifier.fillMaxSize()
+    ) {
+        when (val state = uiState) {
+            is AisleUiState.Loading -> {
+                CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+            }
+
+            is AisleUiState.Success -> {
+                AisleScreenContent(
+                    aisles = state.aisles,
+                    onAisleClick = onAisleClick
+                )
+            }
+
+            is AisleUiState.Error -> {
+                Text(
+                    text = state.message,
+                    color = MaterialTheme.colorScheme.error,
+                    modifier = Modifier.align(Alignment.Center)
+                )
             }
         }
     }

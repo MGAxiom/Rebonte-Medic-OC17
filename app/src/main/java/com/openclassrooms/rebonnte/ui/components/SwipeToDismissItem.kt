@@ -36,6 +36,10 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.role
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import com.openclassrooms.rebonnte.R
@@ -145,18 +149,23 @@ fun SwipeableItem(
                 modifier = Modifier.matchParentSize(),
                 contentAlignment = Alignment.CenterEnd
             ) {
+                val cdDelete = stringResource(R.string.cd_delete)
                 Box(
                     modifier = Modifier
                         .padding(end = 12.dp)
                         .size(DELETE_ICON_BOX_SIZE.dp)
                         .clip(CircleShape)
                         .background(Color.Red)
+                        .semantics {
+                            role = Role.Button
+                            contentDescription = cdDelete
+                        }
                         .clickable { showConfirmDialog = true },
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(
                         imageVector = Icons.Default.Delete,
-                        contentDescription = "Delete",
+                        contentDescription = null,
                         tint = Color.White
                     )
                 }

@@ -1,5 +1,6 @@
 package com.openclassrooms.rebonnte.data.repository
 
+import android.content.Context
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.snapshots
 import com.openclassrooms.rebonnte.R
@@ -16,11 +17,10 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.tasks.await
 
 class AisleRepositoryImpl(
-    private val context: android.content.Context,
-    private val firestore: FirebaseFirestore
+    private val context: Context,
+    firestore: FirebaseFirestore
 ) : AisleRepository {
     
-    private val scope = CoroutineScope(Dispatchers.IO)
     private val aisleCollection = firestore.collection("aisles")
 
     override val aisles: Flow<Result<List<Aisle>>> = aisleCollection
@@ -42,7 +42,7 @@ class AisleRepositoryImpl(
             docRef.set(aisle).await()
             Result.success(Unit)
         } catch (e: Exception) {
-            Result.failure(Exception(context.getString(R.string.error_unknown)))
+            Result.failure(Exception("${context.getString(R.string.error_unknown)} $e"))
         }
     }
 }

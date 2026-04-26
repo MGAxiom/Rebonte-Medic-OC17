@@ -46,4 +46,15 @@
     <string name="error_medicine_remove_failed">Failed to remove medicine.</string>
     <string name="error_aisle_fetch_failed">Failed to fetch aisles.</string>
     <string name="error_medicine_fetch_failed">Failed to fetch medicines.</string>
+    <string name="cd_more_options">More options</string>
+    <string name="cd_back">Back</string>
+    <string name="cd_search">Search</string>
+    <string name="cd_clear_search">Clear search</string>
+    <string name="cd_minus_one">Decrement stock by one</string>
+    <string name="cd_plus_one">Increment stock by one</string>
+    <string name="cd_navigation_arrow">Go to details</string>
+    <string name="cd_delete">Delete item</string>
+    <string name="label_add_profile_picture">Add profile picture</string>
+    <string name="label_view_details">View details</string>
+    <string name="dark_theme_label">Dark Theme</string>
 </resources>

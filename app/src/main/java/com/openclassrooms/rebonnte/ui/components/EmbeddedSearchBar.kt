@@ -25,8 +25,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.hideFromAccessibility
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.openclassrooms.rebonnte.R
 
 @Composable
 fun EmbeddedSearchBar(
@@ -60,14 +64,16 @@ fun EmbeddedSearchBar(
                 Icon(
                     imageVector = Icons.AutoMirrored.Rounded.ArrowBack,
                     contentDescription = null,
-                    tint = MaterialTheme.colorScheme.primary
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.semantics { hideFromAccessibility() }
                 )
             }
         } else {
             Icon(
                 imageVector = Icons.Rounded.Search,
                 contentDescription = null,
-                tint = MaterialTheme.colorScheme.onSurfaceVariant
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.semantics { hideFromAccessibility() }
             )
         }
 
@@ -88,9 +94,9 @@ fun EmbeddedSearchBar(
             decorationBox = { innerTextField ->
                 if (searchQuery.isEmpty()) {
                     Text(
-                        text = "Search",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
+                        text = stringResource(R.string.cd_search),
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
                     )
                 }
                 innerTextField()

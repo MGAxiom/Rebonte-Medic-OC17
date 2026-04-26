@@ -1,4 +1,4 @@
-package com.openclassrooms.rebonnte.ui.main
+package com.openclassrooms.rebonnte.ui.screens.main
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.List
@@ -25,7 +25,7 @@ fun RebonnteBottomBar(
             icon = {
                 Icon(
                     Icons.Default.Home,
-                    contentDescription = stringResource(R.string.aisle_tab)
+                    contentDescription = null
                 )
             },
             label = { Text(stringResource(R.string.aisle_tab)) },
@@ -37,7 +37,7 @@ fun RebonnteBottomBar(
             icon = {
                 Icon(
                     Icons.AutoMirrored.Filled.List,
-                    contentDescription = stringResource(R.string.medicine_tab)
+                    contentDescription = null
                 )
             },
             label = { Text(stringResource(R.string.medicine_tab)) },
@@ -50,7 +50,7 @@ fun RebonnteBottomBar(
             icon = {
                 Icon(
                     Icons.Outlined.Person,
-                    contentDescription = stringResource(R.string.account_tab)
+                    contentDescription = null
                 )
             },
             label = { Text(stringResource(R.string.account_tab)) },

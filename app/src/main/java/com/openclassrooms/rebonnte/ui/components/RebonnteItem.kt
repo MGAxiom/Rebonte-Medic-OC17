@@ -15,9 +15,15 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.onClick
+import androidx.compose.ui.semantics.role
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.openclassrooms.rebonnte.R
 
 @Composable
 internal fun RebonnteItem(
@@ -26,9 +32,17 @@ internal fun RebonnteItem(
     subtitle: String? = null,
     onClick: () -> Unit
 ) {
+    val viewDetailsLabel = stringResource(R.string.label_view_details)
     Row(
         modifier = modifier
             .fillMaxWidth()
+            .semantics {
+                role = Role.Button
+                onClick(label = viewDetailsLabel) {
+                    onClick()
+                    true
+                }
+            }
             .clickable { onClick() }
             .padding(16.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
@@ -44,13 +58,13 @@ internal fun RebonnteItem(
                 Text(
                     text = subtitle,
                     style = MaterialTheme.typography.bodyMedium,
-                    color = Color.Gray
+                    color = MaterialTheme.colorScheme.onSurface
                 )
             }
         }
         Icon(
             imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
-            contentDescription = "Arrow",
+            contentDescription = null,
             tint = MaterialTheme.colorScheme.onSurfaceVariant
         )
     }

@@ -1,4 +1,4 @@
-package com.openclassrooms.rebonnte.ui.main
+package com.openclassrooms.rebonnte.ui.screens.main
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ExitToApp
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -25,6 +24,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import com.openclassrooms.rebonnte.R
@@ -37,7 +38,6 @@ fun RebonnteTopAppBar(
     currentDestination: Any?,
     searchQuery: String,
     isSearchActive: Boolean,
-    onSignOut: () -> Unit,
     onSortNone: () -> Unit,
     onSortName: () -> Unit,
     onSortStock: () -> Unit,
@@ -59,10 +59,6 @@ fun RebonnteTopAppBar(
             actions = {
                 var expanded by remember { mutableStateOf(false) }
 
-                /*IconButton(onClick = onSignOut) {
-                    Icon(Icons.AutoMirrored.Filled.ExitToApp, contentDescription = stringResource(R.string.sign_out))
-                }*/
-
                 if (currentDestination == Screens.Medicine) {
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
@@ -72,8 +68,15 @@ fun RebonnteTopAppBar(
                             .padding(horizontal = 8.dp, vertical = 4.dp)
                     ) {
                         Box {
-                            IconButton(onClick = { expanded = true }) {
-                                Icon(Icons.Default.MoreVert, contentDescription = null)
+                            val cdMoreOptions = stringResource(R.string.cd_more_options)
+                            IconButton(
+                                onClick = { expanded = true },
+                                modifier = Modifier.semantics { contentDescription = cdMoreOptions }
+                            ) {
+                                Icon(
+                                    Icons.Default.MoreVert,
+                                    contentDescription = null
+                                )
                             }
                             DropdownMenu(
                                 expanded = expanded,

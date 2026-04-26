@@ -2,13 +2,10 @@ package com.openclassrooms.rebonnte.ui.screens.medicine
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -41,32 +38,31 @@ fun MedicineScreen(
         }
     }
 
-    Scaffold(
-        snackbarHost = { SnackbarHost(snackbarHostState) },
-        modifier = modifier
-    ) { padding ->
-        Box(modifier = Modifier.padding(padding).fillMaxSize()) {
-            when (val state = uiState) {
-                is MedicineUiState.Loading -> {
-                    CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
-                }
-                is MedicineUiState.Success -> {
-                    MedicineScreenContent(
-                        medicines = state.medicines,
-                        onDetailClick = onDetailClick,
-                        onDeleteMedicine = { viewModel.removeMedicine(it) }
-                    )
-                }
-                is MedicineUiState.Error -> {
-                    Text(
-                        text = state.message,
-                        color = MaterialTheme.colorScheme.error,
-                        modifier = Modifier.align(Alignment.Center)
-                    )
-                }
+    Box(modifier = modifier
+        .fillMaxSize()) {
+        when (val state = uiState) {
+            is MedicineUiState.Loading -> {
+                CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+            }
+
+            is MedicineUiState.Success -> {
+                MedicineScreenContent(
+                    medicines = state.medicines,
+                    onDetailClick = onDetailClick,
+                    onDeleteMedicine = { viewModel.removeMedicine(it) }
+                )
+            }
+
+            is MedicineUiState.Error -> {
+                Text(
+                    text = state.message,
+                    color = MaterialTheme.colorScheme.error,
+                    modifier = Modifier.align(Alignment.Center)
+                )
             }
         }
     }
+
 }
 
 @Composable

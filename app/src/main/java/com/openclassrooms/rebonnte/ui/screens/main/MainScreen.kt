@@ -1,9 +1,8 @@
-package com.openclassrooms.rebonnte.ui.main
+package com.openclassrooms.rebonnte.ui.screens.main
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
@@ -12,7 +11,6 @@ import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.derivedStateOf
@@ -23,9 +21,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.navigation3.runtime.NavEntry
 import androidx.navigation3.ui.NavDisplay
 import com.openclassrooms.rebonnte.R
@@ -33,7 +32,6 @@ import com.openclassrooms.rebonnte.ui.screens.aisle.AisleDetailScreen
 import com.openclassrooms.rebonnte.ui.screens.aisle.AisleScreen
 import com.openclassrooms.rebonnte.ui.screens.aisle.AisleViewModel
 import com.openclassrooms.rebonnte.ui.state.AisleUiState
-import com.openclassrooms.rebonnte.ui.state.MedicineUiState
 import com.openclassrooms.rebonnte.ui.screens.login.LoginViewModel
 import com.openclassrooms.rebonnte.ui.screens.medicine.MedicineAddScreen
 import com.openclassrooms.rebonnte.ui.screens.medicine.MedicineDetailScreen
@@ -66,7 +64,6 @@ fun MainScreen(
                 currentDestination = currentDestination,
                 searchQuery = searchQuery,
                 isSearchActive = isSearchActive,
-                onSignOut = { loginViewModel.signOut() },
                 onSortNone = { medicineViewModel.sortByNone() },
                 onSortName = { medicineViewModel.sortByName() },
                 onSortStock = { medicineViewModel.sortByStock() },
@@ -139,7 +136,7 @@ fun MainScreen(
                             viewModel = koinViewModel(),
                             onDetailClick = { name ->
                                 backStack.add(Screens.MedicineDetail(name))
-                            }
+                            },
                         )
                     }
                     is Screens.AisleDetail -> NavEntry(key) {
@@ -188,21 +185,33 @@ fun MainFloatingActionButton(
     showScrollToTop: Boolean
 ) {
     if (currentDestination == Screens.Aisle) {
-        FloatingActionButton(onClick = onAddRandomAisle) {
-            Icon(Icons.Default.Add, contentDescription = stringResource(R.string.add_aisle_content_description))
+        val cdAddAisle = stringResource(R.string.add_aisle_content_description)
+        FloatingActionButton(
+            onClick = onAddRandomAisle,
+            modifier = Modifier.semantics { contentDescription = cdAddAisle }
+        ) {
+            Icon(Icons.Default.Add, contentDescription = null)
         }
     } else if (currentDestination == Screens.Medicine && aislesNotEmpty) {
-        FloatingActionButton(onClick = onNavigateToAddMedicine) {
-            Icon(Icons.Default.Add, contentDescription = stringResource(R.string.add_medicine_content_description))
+        val cdAddMedicine = stringResource(R.string.add_medicine_content_description)
+        FloatingActionButton(
+            onClick = onNavigateToAddMedicine,
+            modifier = Modifier.semantics { contentDescription = cdAddMedicine }
+        ) {
+            Icon(Icons.Default.Add, contentDescription = null)
         }
     } else if (currentDestination is Screens.MedicineDetail) {
+        val cdBackToTop = stringResource(R.string.back_to_top)
         AnimatedVisibility(
             visible = showScrollToTop,
             enter = fadeIn(),
             exit = fadeOut()
         ) {
-            FloatingActionButton(onClick = onScrollToTop) {
-                Icon(Icons.Default.KeyboardArrowUp, contentDescription = stringResource(R.string.back_to_top))
+            FloatingActionButton(
+                onClick = onScrollToTop,
+                modifier = Modifier.semantics { contentDescription = cdBackToTop }
+            ) {
+                Icon(Icons.Default.KeyboardArrowUp, contentDescription = null)
             }
         }
     }

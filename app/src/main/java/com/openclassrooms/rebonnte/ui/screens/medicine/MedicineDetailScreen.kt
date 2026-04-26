@@ -25,9 +25,13 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.openclassrooms.rebonnte.R
 import com.openclassrooms.rebonnte.domain.model.History
 import com.openclassrooms.rebonnte.domain.model.Medicine
 import com.openclassrooms.rebonnte.ui.state.MedicineUiState
@@ -83,12 +87,14 @@ private fun MedicineDetailScreenContent(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                IconButton(onClick = {
-                    onUpdateStock(false)
-                }) {
+                val cdMinusOne = stringResource(R.string.cd_minus_one)
+                IconButton(
+                    onClick = { onUpdateStock(false) },
+                    modifier = Modifier.semantics { contentDescription = cdMinusOne }
+                ) {
                     Icon(
                         imageVector = Icons.Filled.KeyboardArrowDown,
-                        contentDescription = "Minus One"
+                        contentDescription = null
                     )
                 }
                 TextField(
@@ -98,12 +104,14 @@ private fun MedicineDetailScreenContent(
                     enabled = false,
                     modifier = Modifier.weight(1f)
                 )
-                IconButton(onClick = {
-                    onUpdateStock(true)
-                }) {
+                val cdPlusOne = stringResource(R.string.cd_plus_one)
+                IconButton(
+                    onClick = { onUpdateStock(true) },
+                    modifier = Modifier.semantics { contentDescription = cdPlusOne }
+                ) {
                     Icon(
                         imageVector = Icons.Default.KeyboardArrowUp,
-                        contentDescription = "Plus One"
+                        contentDescription = null
                     )
                 }
             }

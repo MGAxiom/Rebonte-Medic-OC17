@@ -5,6 +5,7 @@ import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -25,11 +26,13 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Switch
 import androidx.compose.runtime.LaunchedEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.getValue
@@ -45,22 +48,30 @@ import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.onClick
+import androidx.compose.ui.semantics.role
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import coil3.request.ImageRequest
 import coil3.request.crossfade
 import com.openclassrooms.rebonnte.R
+import com.openclassrooms.rebonnte.ui.ThemeViewModel
 import com.openclassrooms.rebonnte.ui.screens.login.LoginViewModel
 import com.openclassrooms.rebonnte.ui.theme.RebonnteTheme
+import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun ProfileScreen(
-    viewModel: LoginViewModel
+    viewModel: LoginViewModel,
+    themeViewModel: ThemeViewModel = koinViewModel()
 ) {
     val user by viewModel.user.collectAsStateWithLifecycle()
     val isLoading by viewModel.profileLoading.collectAsStateWithLifecycle()
     val error by viewModel.profileError.collectAsStateWithLifecycle()
+    val isDarkTheme by themeViewModel.isDarkTheme.collectAsStateWithLifecycle()
     var name by remember(user?.name) { mutableStateOf(user?.name ?: "") }
     val snackbarHostState = remember { SnackbarHostState() }
 
@@ -87,6 +98,8 @@ fun ProfileScreen(
         photoUrl = user?.photoUrl,
         isLoading = isLoading,
         snackbarHostState = snackbarHostState,
+        isDarkTheme = isDarkTheme ?: isSystemInDarkTheme(),
+        onThemeToggle = { themeViewModel.toggleTheme(it) },
         onSignOutClick = { viewModel.signOut() },
         onAddImageClick = {
             photoPickerLauncher.launch(
@@ -106,6 +119,8 @@ private fun ProfileScreenContent(
     photoUrl: String?,
     isLoading: Boolean,
     snackbarHostState: SnackbarHostState,
+    isDarkTheme: Boolean,
+    onThemeToggle: (Boolean) -> Unit,
     onSignOutClick: () -> Unit,
     onAddImageClick: () -> Unit,
     modifier: Modifier = Modifier
@@ -136,7 +151,12 @@ private fun ProfileScreenContent(
                         label = { Text(stringResource(R.string.name_label)) },
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(12.dp),
-                        enabled = !isLoading
+                        enabled = !isLoading,
+                        colors = OutlinedTextFieldDefaults.colors(
+                            unfocusedLabelColor = MaterialTheme.colorScheme.onSurface,
+                            focusedLabelColor = MaterialTheme.colorScheme.primary,
+                            disabledLabelColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                        )
                     )
                 }
             }
@@ -150,7 +170,11 @@ private fun ProfileScreenContent(
                 modifier = Modifier.fillMaxWidth(),
                 readOnly = true,
                 enabled = false,
-                shape = RoundedCornerShape(12.dp)
+                shape = RoundedCornerShape(12.dp),
+                colors = OutlinedTextFieldDefaults.colors(
+                    disabledLabelColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+                    disabledTextColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                )
             )
 
             Button(
@@ -159,6 +183,29 @@ private fun ProfileScreenContent(
                 enabled = !isLoading && isNameChanged
             ) {
                 Text("Save changes")
+            }
+
+            Spacer(modifier = Modifier.height(32.dp))
+
+            Row(
+                modifier = Modifier
+                    .semantics(
+                        mergeDescendants = true,
+                        properties = {}
+                    )
+                    .fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = stringResource(R.string.dark_theme_label),
+                    style = MaterialTheme.typography.bodyLarge,
+                    modifier = Modifier.weight(1f)
+                )
+                Switch(
+                    checked = isDarkTheme,
+                    onCheckedChange = onThemeToggle,
+                    enabled = !isLoading
+                )
             }
 
             Spacer(modifier = Modifier.weight(1f))
@@ -191,6 +238,7 @@ private fun UserProfilePicture(
     onAddImageClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val addProfilePictureLabel = stringResource(R.string.label_add_profile_picture)
     Box(
         modifier = modifier
             .size(80.dp)
@@ -205,6 +253,13 @@ private fun UserProfilePicture(
                     )
                 )
             )
+            .semantics {
+                role = Role.Button
+                onClick(label = addProfilePictureLabel) {
+                    onAddImageClick()
+                    true
+                }
+            }
             .clickable { onAddImageClick() },
         contentAlignment = Alignment.Center
     ) {
@@ -223,7 +278,7 @@ private fun UserProfilePicture(
         } else {
             Icon(
                 imageVector = Icons.Default.Add,
-                contentDescription = stringResource(R.string.add_image_description),
+                contentDescription = null,
                 modifier = Modifier.size(40.dp),
                 tint = MaterialTheme.colorScheme.primary
             )
@@ -244,6 +299,8 @@ private fun ProfileScreenPreview() {
             photoUrl = null,
             isLoading = false,
             snackbarHostState = remember { SnackbarHostState() },
+            isDarkTheme = false,
+            onThemeToggle = {},
             onSignOutClick = {},
             onAddImageClick = {}
         )

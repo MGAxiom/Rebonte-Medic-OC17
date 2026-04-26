@@ -3,9 +3,11 @@ package com.openclassrooms.rebonnte.di
 import com.google.firebase.firestore.FirebaseFirestore
 import com.openclassrooms.rebonnte.data.repository.AisleRepositoryImpl
 import com.openclassrooms.rebonnte.data.repository.AuthRepositoryImpl
+import com.openclassrooms.rebonnte.data.repository.ThemeRepositoryImpl
 import com.openclassrooms.rebonnte.data.repository.MedicineRepositoryImpl
 import com.openclassrooms.rebonnte.domain.repository.AisleRepository
 import com.openclassrooms.rebonnte.domain.repository.AuthRepository
+import com.openclassrooms.rebonnte.domain.repository.ThemeRepository
 import com.openclassrooms.rebonnte.domain.repository.MedicineRepository
 import com.openclassrooms.rebonnte.data.repository.UserRepositoryImpl
 import com.openclassrooms.rebonnte.domain.repository.UserRepository
@@ -16,6 +18,7 @@ import com.openclassrooms.rebonnte.domain.usecase.AddMedicineUseCase
 import com.openclassrooms.rebonnte.domain.usecase.GetMedicinesUseCase
 import com.openclassrooms.rebonnte.domain.usecase.UpdateMedicineStockUseCase
 import com.openclassrooms.rebonnte.domain.usecase.RemoveMedicineUseCase
+import com.openclassrooms.rebonnte.ui.ThemeViewModel
 import com.openclassrooms.rebonnte.ui.screens.aisle.AisleViewModel
 import com.openclassrooms.rebonnte.ui.screens.login.LoginViewModel
 import com.openclassrooms.rebonnte.ui.screens.medicine.MedicineViewModel
@@ -33,6 +36,7 @@ val appModule = module {
     single<MedicineRepository> { MedicineRepositoryImpl(androidContext(), get()) }
     single<AuthRepository> { AuthRepositoryImpl(androidContext()) }
     single<UserRepository> { UserRepositoryImpl(androidContext()) }
+    single<ThemeRepository> { ThemeRepositoryImpl(androidContext()) }
     
     factoryOf(::UploadProfilePictureUseCase)
     factoryOf(::AddAisleUseCase)
@@ -45,4 +49,5 @@ val appModule = module {
     viewModelOf(::AisleViewModel)
     viewModelOf(::MedicineViewModel)
     viewModelOf(::LoginViewModel)
+    viewModelOf(::ThemeViewModel)
 }
