@@ -142,4 +142,17 @@ private fun LoginScreenPreview() {
     }
 }
 
+@Preview(showBackground = true, uiMode = android.content.res.Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun LoginScreenDarkPreview() {
+    RebonnteTheme(darkTheme = true) {
+        LoginScreenContent(
+            loginState = LoginUiState.Idle,
+            user = null,
+            onGoogleLoginClick = {},
+            onEmailLoginClick = {}
+        )
+    }
+}
+
 private const val BUTTON_WIDTH = 200
