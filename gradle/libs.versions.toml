@@ -1,6 +1,6 @@
 [versions]
 agp = "8.9.1"
-coil = "3.2.0"
+coil = "3.0.4"
 kotlin = "2.0.21"
 coreKtx = "1.13.1"
 junit = "4.13.2"
@@ -23,6 +23,10 @@ serialization = "1.7.3"
 datastore = "1.1.2"
 firebaseStorage = "22.0.1"
 firebaseFirestore = "26.2.0"
+mockk = "1.13.12"
+kotlinxCoroutinesTest = "1.9.0"
+turbine = "1.1.0"
+androidxCoreTesting = "2.2.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -58,6 +62,10 @@ kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-
 androidx-datastore = { group = "androidx.datastore", name = "datastore-preferences", version.ref = "datastore" }
 firebase-storage = { group = "com.google.firebase", name = "firebase-storage", version.ref = "firebaseStorage" }
 firebase-firestore = { group = "com.google.firebase", name = "firebase-firestore", version.ref = "firebaseFirestore" }
+mockk = { module = "io.mockk:mockk", version.ref = "mockk" }
+kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "kotlinxCoroutinesTest" }
+turbine = { module = "app.cash.turbine:turbine", version.ref = "turbine" }
+androidx-core-testing = { module = "androidx.arch.core:core-testing", version.ref = "androidxCoreTesting" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

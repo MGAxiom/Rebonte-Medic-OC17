@@ -4,6 +4,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.openclassrooms.rebonnte.data.repository.AisleRepositoryImpl
 import com.openclassrooms.rebonnte.data.repository.AuthRepositoryImpl
 import com.openclassrooms.rebonnte.data.repository.ThemeRepositoryImpl
+import com.openclassrooms.rebonnte.data.repository.dataStore
 import com.openclassrooms.rebonnte.data.repository.MedicineRepositoryImpl
 import com.openclassrooms.rebonnte.domain.repository.AisleRepository
 import com.openclassrooms.rebonnte.domain.repository.AuthRepository
@@ -36,7 +37,7 @@ val appModule = module {
     single<MedicineRepository> { MedicineRepositoryImpl(androidContext(), get()) }
     single<AuthRepository> { AuthRepositoryImpl(androidContext()) }
     single<UserRepository> { UserRepositoryImpl(androidContext()) }
-    single<ThemeRepository> { ThemeRepositoryImpl(androidContext()) }
+    single<ThemeRepository> { ThemeRepositoryImpl(androidContext().dataStore) }
     
     factoryOf(::UploadProfilePictureUseCase)
     factoryOf(::AddAisleUseCase)

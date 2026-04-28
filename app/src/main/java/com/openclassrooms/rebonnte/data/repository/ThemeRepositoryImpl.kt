@@ -13,15 +13,15 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
 import java.io.IOException
 
-private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "settings")
+val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "settings")
 
-class ThemeRepositoryImpl(private val context: Context) : ThemeRepository {
+class ThemeRepositoryImpl(private val dataStore: DataStore<Preferences>) : ThemeRepository {
 
     private object PreferencesKeys {
         val IS_DARK_THEME = booleanPreferencesKey("is_dark_theme")
     }
 
-    override val isDarkTheme: Flow<Boolean?> = context.dataStore.data
+    override val isDarkTheme: Flow<Boolean?> = dataStore.data
         .catch { exception ->
             if (exception is IOException) {
                 emit(emptyPreferences())
@@ -34,7 +34,7 @@ class ThemeRepositoryImpl(private val context: Context) : ThemeRepository {
         }
 
     override suspend fun setDarkTheme(isDark: Boolean) {
-        context.dataStore.edit { preferences ->
+        dataStore.edit { preferences ->
             preferences[PreferencesKeys.IS_DARK_THEME] = isDark
         }
     }
