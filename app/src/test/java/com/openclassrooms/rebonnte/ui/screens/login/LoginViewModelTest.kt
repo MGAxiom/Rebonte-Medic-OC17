@@ -96,4 +96,22 @@ class LoginViewModelTest {
             assertEquals(false, awaitItem())
         }
     }
+
+    @Test
+    fun testSignUpWithEmail() = runTest(testDispatcher) {
+        coEvery { authRepository.signUpWithEmail(any(), any(), any()) } returns Result.success(mockk(relaxed = true))
+        viewModel.signUpWithEmail("test@test.com", "pass", "Name")
+        advanceUntilIdle()
+        coVerify { authRepository.signUpWithEmail("test@test.com", "pass", "Name") }
+    }
+
+    @Test
+    fun testClearProfileError() = runTest(testDispatcher) {
+        coEvery { authRepository.updateDisplayName(any()) } returns Result.failure(Exception("Fail"))
+        viewModel.updateDisplayName("New")
+        advanceUntilIdle()
+        assertEquals("Fail", viewModel.profileError.value)
+        viewModel.clearProfileError()
+        assertEquals(null, viewModel.profileError.value)
+    }
 }

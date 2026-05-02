@@ -49,4 +49,18 @@ class AisleRepositoryImplTest {
         val result = repository.addRandomAisle()
         assertTrue(result.isSuccess)
     }
+
+    @Test
+    fun testAddRandomAisle_failure() = runTest {
+        val getTask: Task<QuerySnapshot> = mockk()
+
+        every { context.getString(any()) } returns "Error"
+        every { collectionReference.get() } returns getTask
+        
+        mockkStatic("kotlinx.coroutines.tasks.TasksKt")
+        coEvery { getTask.await() } throws Exception("Firestore error")
+
+        val result = repository.addRandomAisle()
+        assertTrue(result.isFailure)
+    }
 }
