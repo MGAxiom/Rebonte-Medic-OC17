@@ -71,12 +71,15 @@ fun MainScreen(
                     medicineViewModel.filterByName(it)
                     searchQuery = it
                 },
-                onActiveChanged = { isSearchActive = it }
+                onActiveChanged = { isSearchActive = it },
+                onBack = { backStack.removeLastOrNull() },
+                canNavigateBack = backStack.size > 1
             )
         },
         bottomBar = {
             RebonnteBottomBar(
                 currentDestination = currentDestination,
+                backStack = backStack,
                 onNavigateToAisle = {
                     if (currentDestination != Screens.Aisle) {
                         backStack.clear()

@@ -16,10 +16,12 @@ import com.openclassrooms.rebonnte.ui.navigation.Screens
 @Composable
 fun RebonnteBottomBar(
     currentDestination: Any?,
+    backStack: List<Any>,
     onNavigateToAisle: () -> Unit,
     onNavigateToMedicine: () -> Unit,
     onNavigateToProfile: () -> Unit
 ) {
+    val root = backStack.firstOrNull()
     NavigationBar {
         NavigationBarItem(
             icon = {
@@ -29,8 +31,7 @@ fun RebonnteBottomBar(
                 )
             },
             label = { Text(stringResource(R.string.aisle_tab)) },
-            selected = currentDestination == Screens.Aisle ||
-                    currentDestination is Screens.AisleDetail,
+            selected = root == Screens.Aisle,
             onClick = onNavigateToAisle
         )
         NavigationBarItem(
@@ -41,9 +42,7 @@ fun RebonnteBottomBar(
                 )
             },
             label = { Text(stringResource(R.string.medicine_tab)) },
-            selected = currentDestination == Screens.Medicine ||
-                    currentDestination is Screens.MedicineDetail ||
-                    currentDestination == Screens.MedicineAdd,
+            selected = root == Screens.Medicine,
             onClick = onNavigateToMedicine
         )
         NavigationBarItem(
@@ -54,7 +53,7 @@ fun RebonnteBottomBar(
                 )
             },
             label = { Text(stringResource(R.string.account_tab)) },
-            selected = currentDestination == Screens.Profile,
+            selected = root == Screens.Profile,
             onClick = onNavigateToProfile
         )
     }

@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -42,7 +43,9 @@ fun RebonnteTopAppBar(
     onSortName: () -> Unit,
     onSortStock: () -> Unit,
     onQueryChange: (String) -> Unit,
-    onActiveChanged: (Boolean) -> Unit
+    onActiveChanged: (Boolean) -> Unit,
+    onBack: () -> Unit,
+    canNavigateBack: Boolean
 ) {
     Column(verticalArrangement = Arrangement.spacedBy((-1).dp)) {
         TopAppBar(
@@ -54,6 +57,16 @@ fun RebonnteTopAppBar(
                     is Screens.MedicineDetail -> Text(text = currentDestination.name)
                     is Screens.MedicineAdd -> Text(text = stringResource(R.string.add_medicine_direction_name))
                     else -> Text(text = stringResource(R.string.rebonnte_direction_name))
+                }
+            },
+            navigationIcon = {
+                if (canNavigateBack) {
+                    IconButton(onClick = onBack) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = stringResource(R.string.cd_back)
+                        )
+                    }
                 }
             },
             actions = {

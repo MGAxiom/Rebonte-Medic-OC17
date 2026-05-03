@@ -150,10 +150,14 @@ tasks.register<JacocoReport>("jacocoTestReport") {
         "**/*NavigationKt*",
         "**/MainActivity*",
         "**/*App*",
-        "**/*$*", // Exclude all nested classes (often Compose lambdas)
+        "**/*$*",
         "**/ComposableSingletons*",
         "**/ui/components/*",
-        "**/ui/screens/main/*"
+        "**/ui/screens/**/*Screen*",
+        "**/ui/screens/**/*Dialog*",
+        "**/ui/screens/**/*Bar*",
+        "**/ui/screens/main/*",
+        "**/ui/navigation/*"
     )
     val debugTree = fileTree("${project.layout.buildDirectory.get()}/tmp/kotlin-classes/debug") {
         exclude(fileFilter)
