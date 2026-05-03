@@ -45,7 +45,11 @@ class LoginViewModel(
                     photoUrl = photoUrl?.toString()?.takeIf { url -> url.isNotBlank() }
                 )
             }
-        }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
+        }.stateIn(
+            viewModelScope,
+            SharingStarted.WhileSubscribed(5000),
+            null
+        )
 
     fun onSignInResult(idToken: String) {
         viewModelScope.launch {
@@ -87,7 +91,10 @@ class LoginViewModel(
                     request = request
                 )
 
-                val idToken = result.credential.data.getString("com.google.android.libraries.identity.googleid.BUNDLE_KEY_ID_TOKEN")
+                val idToken = result
+                    .credential.data.getString(
+                        "com.google.android.libraries.identity.googleid.BUNDLE_KEY_ID_TOKEN"
+                    )
                 if (idToken != null) {
                     onSignInResult(idToken)
                 }

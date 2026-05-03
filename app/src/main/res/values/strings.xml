@@ -57,4 +57,8 @@
     <string name="label_add_profile_picture">Add profile picture</string>
     <string name="label_view_details">View details</string>
     <string name="dark_theme_label">Dark Theme</string>
+    <string name="login_welcome_message">Welcome to Rebonnte</string>
+    <string name="login_welcome_back">Welcome back, %1$s</string>
+    <string name="login_google_button">Sign in with Google</string>
+    <string name="login_email_button">Sign in with credentials</string>
 </resources>

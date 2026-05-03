@@ -43,7 +43,11 @@ class AuthRepositoryImpl(private val context: android.content.Context) : AuthRep
         }
     }
 
-    override suspend fun signUpWithEmail(email: String, password: String, name: String): Result<FirebaseUser?> {
+    override suspend fun signUpWithEmail(
+        email: String,
+        password: String,
+        name: String
+    ): Result<FirebaseUser?> {
         return try {
             val result = auth.createUserWithEmailAndPassword(email, password).await()
             val firebaseUser = result.user

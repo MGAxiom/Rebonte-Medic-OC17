@@ -92,7 +92,11 @@ fun SwipeableItem(
                 scope.launch { draggableState.animateTo(DragAnchor.Resting) }
             },
             title = { Text(text = stringResource(R.string.confirm_deletion)) },
-            text = { Text(text = stringResource(R.string.are_you_sure_you_want_to_delete, title)) },
+            text = {
+                Text(
+                    text = stringResource(R.string.are_you_sure_you_want_to_delete, title)
+                )
+            },
             confirmButton = {
                 TextButton(
                     onClick = {

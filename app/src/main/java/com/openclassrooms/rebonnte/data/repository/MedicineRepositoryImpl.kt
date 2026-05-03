@@ -25,7 +25,10 @@ class MedicineRepositoryImpl(
 
     private val medicineCollection = firestore.collection("medicines")
 
-    override fun getMedicines(sortType: SortType, searchQuery: String): Flow<Result<List<Medicine>>> {
+    override fun getMedicines(
+        sortType: SortType,
+        searchQuery: String
+    ): Flow<Result<List<Medicine>>> {
         var query: Query = medicineCollection
 
         if (searchQuery.isNotEmpty()) {
@@ -65,7 +68,8 @@ class MedicineRepositoryImpl(
 
     override suspend fun removeMedicine(medicineName: String): Result<Unit> {
         return try {
-            val snapshot = medicineCollection.whereEqualTo("name", medicineName).get().await()
+            val snapshot = medicineCollection
+                .whereEqualTo("name", medicineName).get().await()
             for (document in snapshot.documents) {
                 document.reference.delete().await()
             }
@@ -83,7 +87,8 @@ class MedicineRepositoryImpl(
             val snapshot = medicineCollection.whereEqualTo("name", medicineName).get().await()
             for (document in snapshot.documents) {
                 val medicine = document.toObject(Medicine::class.java) ?: continue
-                val newStock = if (increment) medicine.stock + 1 else (medicine.stock - 1).coerceAtLeast(0)
+                val newStock = if (increment) medicine.stock + 1 else
+                        (medicine.stock - 1).coerceAtLeast(0)
                 
                 val historyEntry = History(
                     id = UUID.randomUUID().toString(),

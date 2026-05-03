@@ -22,8 +22,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.openclassrooms.rebonnte.R
 import com.openclassrooms.rebonnte.domain.model.User
 import com.openclassrooms.rebonnte.ui.state.LoginUiState
 import com.openclassrooms.rebonnte.ui.theme.RebonnteTheme
@@ -42,7 +44,11 @@ fun LoginScreen(
         if (loginState is LoginUiState.Success) {
             onLoginSuccess()
         } else if (loginState is LoginUiState.Error) {
-            Toast.makeText(context, (loginState as LoginUiState.Error).message, Toast.LENGTH_LONG).show()
+            Toast.makeText(
+                context,
+                (loginState as LoginUiState.Error).message,
+                Toast.LENGTH_LONG
+            ).show()
         }
     }
 
@@ -85,12 +91,18 @@ private fun LoginScreenContent(
     ) {
         if (user != null) {
             Text(
-                text = "Welcome back, ${user.name}",
+                text = stringResource(
+                    R.string.login_welcome_back,
+                    user.name
+                ),
                 style = MaterialTheme.typography.headlineMedium
             )
             Text(text = user.email, style = MaterialTheme.typography.bodyMedium)
         } else {
-            Text(text = "Welcome to Rebonnte", style = MaterialTheme.typography.headlineMedium)
+            Text(
+                text = stringResource(R.string.login_welcome_message),
+                style = MaterialTheme.typography.headlineMedium
+            )
         }
 
         Spacer(modifier = Modifier.height(32.dp))
@@ -118,13 +130,13 @@ private fun LoginScreenButtons(
             onClick = onGoogleLoginClick,
             modifier = Modifier.width(BUTTON_WIDTH.dp)
         ) {
-            Text(text = "Sign in with Google")
+            Text(text = stringResource(R.string.login_google_button))
         }
         Button(
             onClick = onEmailLoginClick,
             modifier = Modifier.width(BUTTON_WIDTH.dp)
         ) {
-            Text(text = "Sign in with credentials")
+            Text(text = stringResource(R.string.login_email_button))
         }
     }
 }
@@ -142,8 +154,12 @@ private fun LoginScreenPreview() {
     }
 }
 
-@Preview(showBackground = true, uiMode = android.content.res.Configuration.UI_MODE_NIGHT_YES)
+@Preview(
+    showBackground = true,
+    uiMode = android.content.res.Configuration.UI_MODE_NIGHT_YES
+)
 @Composable
+
 private fun LoginScreenDarkPreview() {
     RebonnteTheme(darkTheme = true) {
         LoginScreenContent(

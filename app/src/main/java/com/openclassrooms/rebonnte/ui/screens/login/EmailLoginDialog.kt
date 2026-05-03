@@ -80,7 +80,9 @@ fun EmailLoginDialog(
                         onConfirm(email, password, if (isSignUp) name else null)
                     }
                 },
-                enabled = email.isNotBlank() && password.isNotBlank() && (!isSignUp || name.isNotBlank())
+                enabled = email.isNotBlank()
+                        && password.isNotBlank()
+                        && (!isSignUp || name.isNotBlank())
             ) {
                 Text(if (isSignUp) stringResource(R.string.sign_up) else
                     stringResource(R.string.sign_in))

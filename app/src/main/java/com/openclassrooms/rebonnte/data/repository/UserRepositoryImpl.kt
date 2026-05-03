@@ -15,7 +15,8 @@ class UserRepositoryImpl(private val context: android.content.Context) : UserRep
 
     override suspend fun uploadProfilePicture(uri: Uri): Result<String> {
         return try {
-            val user = auth.currentUser ?: return Result.failure(Exception(context.getString(R.string.error_permission_denied)))
+            val user = auth.currentUser ?: return Result
+                .failure(Exception(context.getString(R.string.error_permission_denied)))
             val storageRef = storage.reference.child("profile_pictures/${user.uid}.jpg")
             
             storageRef.putFile(uri).await()

@@ -40,7 +40,9 @@ import com.openclassrooms.rebonnte.ui.theme.RebonnteTheme
 @Composable
 fun MedicineDetailScreen(name: String, viewModel: MedicineViewModel) {
     val uiState by viewModel.uiState.collectAsState()
-    val medicine = (uiState as? MedicineUiState.Success)?.medicines?.find { it.name == name } ?: return
+    val medicine = (uiState as? MedicineUiState.Success)?.medicines?.find {
+        it.name == name
+    } ?: return
 
     MedicineDetailScreenContent(
         medicine = medicine,
@@ -155,7 +157,12 @@ private fun MedicineDetailScreenPreview() {
                 nameAisle = "Aisle 1",
                 stock = 10,
                 histories = listOf(
-                    History(medicineName = "Paracetamol", userId = "user1", date = "2023-10-27", details = "Stock incremented")
+                    History(
+                        medicineName = "Paracetamol",
+                        userId = "user1",
+                        date = "2023-10-27",
+                        details = "Stock incremented"
+                    )
                 )
             ),
             onUpdateStock = {}

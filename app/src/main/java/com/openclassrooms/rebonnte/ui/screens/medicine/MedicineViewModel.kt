@@ -6,6 +6,10 @@ import androidx.lifecycle.viewModelScope
 import com.openclassrooms.rebonnte.domain.model.Medicine
 import com.openclassrooms.rebonnte.domain.model.SortType
 import com.openclassrooms.rebonnte.domain.repository.MedicineRepository
+import com.openclassrooms.rebonnte.domain.usecase.AddMedicineUseCase
+import com.openclassrooms.rebonnte.domain.usecase.GetMedicinesUseCase
+import com.openclassrooms.rebonnte.domain.usecase.RemoveMedicineUseCase
+import com.openclassrooms.rebonnte.domain.usecase.UpdateMedicineStockUseCase
 import com.openclassrooms.rebonnte.ui.state.MedicineUiState
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -18,10 +22,10 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 class MedicineViewModel(
-    private val getMedicinesUseCase: com.openclassrooms.rebonnte.domain.usecase.GetMedicinesUseCase,
-    private val addMedicineUseCase: com.openclassrooms.rebonnte.domain.usecase.AddMedicineUseCase,
-    private val updateMedicineStockUseCase: com.openclassrooms.rebonnte.domain.usecase.UpdateMedicineStockUseCase,
-    private val removeMedicineUseCase: com.openclassrooms.rebonnte.domain.usecase.RemoveMedicineUseCase
+    private val getMedicinesUseCase: GetMedicinesUseCase,
+    private val addMedicineUseCase: AddMedicineUseCase,
+    private val updateMedicineStockUseCase: UpdateMedicineStockUseCase,
+    private val removeMedicineUseCase: RemoveMedicineUseCase
 ) : ViewModel() {
 
     private val _searchQuery = MutableStateFlow("")
