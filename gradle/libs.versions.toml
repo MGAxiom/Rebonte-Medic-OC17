@@ -23,6 +23,7 @@ serialization = "1.7.3"
 datastore = "1.1.2"
 firebaseStorage = "22.0.1"
 firebaseFirestore = "26.2.0"
+firebaseAppDistribution = "5.2.1"
 mockk = "1.13.12"
 kotlinxCoroutinesTest = "1.9.0"
 turbine = "1.1.0"
@@ -76,3 +77,4 @@ jetbrains-kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = 
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 google-gms-google-services = { id = "com.google.gms.google-services", version.ref = "googleGmsGoogleServices" }
+firebase-appdistribution = { id = "com.google.firebase.appdistribution", version.ref = "firebaseAppDistribution" }
